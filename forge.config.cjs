@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '.env' });
+
 module.exports = {
     packagerConfig: {
       ignore: [
@@ -24,4 +26,18 @@ module.exports = {
         config: {},
       },
     ],
+    publishers: [
+      {
+        name: '@electron-forge/publisher-github',
+        config: {
+          repository: {
+            owner: process.env.REPOSITORY_OWNER,
+            name: process.env.REPOSITORY_NAME,
+            authToken: process.env.GITHUB_TOKEN,
+          },
+          prerelease: false,
+          draft: true
+        }
+      }
+    ]
   };
