@@ -26,6 +26,7 @@ function updateApp(): void {
     const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
     const updateInterval = '24 hours'
 
+    log.info('NODE_ENV: ' + process.env.NODE_ENV)
     log.info('app version: ' + app.getVersion())
     log.info('update interval: ' + updateInterval)
 
