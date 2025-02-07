@@ -234,6 +234,8 @@ app.whenReady().then(() => {
 
     setupWebSocketUtility()
 
+    // setUpOverlays()
+
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
     // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils

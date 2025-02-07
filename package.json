@@ -2,7 +2,7 @@
   "name": "open-overlay",
   "version": "1.0.0",
   "description": "An Electron application with Vue and TypeScript",
-  "main": "./out/main/index.js",
+  "main": "./dist/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
   "scripts": {
@@ -11,14 +11,16 @@
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
-    "start": "electron-vite preview",
-    "dev": "electron-vite dev",
+    "start": "electron-vite preview --outDir=dist",
+    "dev": "electron-vite dev --outDir=dist",
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
-    "build:linux": "npm run build && electron-builder --linux"
+    "build:linux": "npm run build && electron-builder --linux",
+    "package": "electron-vite build --outDir=dist && electron-forge package",
+    "make": "electron-vite build --outDir=dist && electron-forge make"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
@@ -26,9 +28,15 @@
     "chart.js": "^4.4.7",
     "electron-updater": "^6.1.7",
     "vue-chartjs": "^5.3.2",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "@electron-forge/cli": "^6.2.1",
+    "@electron-forge/maker-deb": "^6.2.1",
+    "@electron-forge/maker-rpm": "^6.2.1",
+    "@electron-forge/maker-squirrel": "^6.2.1",
+    "@electron-forge/maker-zip": "^6.2.1"
   },
   "devDependencies": {
+    "@electron-forge/publisher-github": "^7.6.1",
     "@electron-toolkit/eslint-config": "^1.0.2",
     "@electron-toolkit/eslint-config-ts": "^2.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
