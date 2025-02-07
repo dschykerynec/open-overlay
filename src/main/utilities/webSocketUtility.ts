@@ -1,8 +1,9 @@
+import log from 'electron-log'
+
+
 import { WebSocket } from 'ws'
 
 import { TelemetryValue } from '../../preload/index.d'
-
-import log from 'electron-log'
 
 const url = 'ws://localhost:7125/sdk'
 let ws: WebSocket
