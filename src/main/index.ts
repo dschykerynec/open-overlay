@@ -1,18 +1,13 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
-import { updateElectronApp } from 'update-electron-app'
+import { updateElectronApp,UpdateSourceType  } from 'update-electron-app'
 
 import { fork, ChildProcess } from 'child_process'
 import { resolve, join } from 'path'
+require('dotenv').config({ path: '.env' });
 
 import icon from '../../resources/racing-car.png?asset'
-
-const updateInterval = '24 hour'
-updateElectronApp({
-    updateInterval: updateInterval,
-    logger: require('electron-log')
-})
 
 let lapTimesWindow: BrowserWindow | null
 let telemetryWindow: BrowserWindow | null
@@ -28,8 +23,20 @@ function setupLogging(): void {
 }
 setupLogging()
 
+const updateInterval = '24 hour'
+
 log.info('app version: ' + app.getVersion())
 log.info('update interval: ' + updateInterval)
+log.info('calling updateElectronApp()')
+
+updateElectronApp({
+    updateSource: {
+        type: UpdateSourceType.ElectronPublicUpdateService,
+        repo: `${process.env.REPOSITORY_OWNER}/${process.env.REPOSITORY_NAME}`
+      },
+    updateInterval: updateInterval,
+    logger: require('electron-log')
+})
 
 function setupWebSocketUtility(): void {
     webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
