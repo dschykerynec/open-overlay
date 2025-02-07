@@ -7,17 +7,12 @@ import log from 'electron-log'
 const url = 'ws://localhost:7125/sdk'
 let ws: WebSocket
 
-let hasBeenConnected = false
-
 function connectToSDKServer() {
-    log.info('time to connect to sdk server')
     ws = new WebSocket(url)
     ws.on('open', () => {
-        log.info('connected to sdk server')
+        log.info('connected to iRacing SDKWrapper Service')
         ws.send('connected')
         process.send!({ name: 'sdk-web-socket-connected', value: true })
-
-        hasBeenConnected = true
     })
 
     ws.on('message', function message(data) {
@@ -26,11 +21,11 @@ function connectToSDKServer() {
             process.send!(message)
         }
         else if (message.name === 'is-on-track') {
-            log.info('utility file() is-on-track', message.value)
             process.send!({ name: 'is-on-track', value: message.value })
         }
         else {
-            log.info('unknown message', message)
+            log.warn('unknown message')
+            log.warn(message)
         }
     })
 
@@ -46,12 +41,6 @@ function connectToSDKServer() {
         log.info('disconnected')
         ws.send!('close')
         ws.close()
-
-        // close the process if it has been connected before, this is the case where the server
-        // has been closed by the user
-        if (hasBeenConnected) {
-            process.exit(0)
-        }
     })
 }
 
