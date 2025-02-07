@@ -23,6 +23,8 @@ function setupLogging(): void {
 }
 setupLogging()
 
+log.info('app version: ' + app.getVersion())
+
 function setupWebSocketUtility(): void {
     webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
 
