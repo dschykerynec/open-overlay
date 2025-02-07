@@ -42,6 +42,8 @@ ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale,
 
 import { Telemetry } from 'src/preload/index.d'
 
+// import log from 'electron-log/renderer'
+
 const pedalInputs = ref<Array<{ brakeInputValue: number, throttleInputValue: number }>>(Array(200).fill({ brake: 0.00, throttle: 0.00 }))
 const steeringAngle = ref('0rad')
 const gear = ref('N')

@@ -2,16 +2,18 @@ import { WebSocket } from 'ws'
 
 import { TelemetryValue } from '../../preload/index.d'
 
+import log from 'electron-log'
+
 const url = 'ws://localhost:7125/sdk'
 let ws: WebSocket
 
 let hasBeenConnected = false
 
 function connectToSDKServer() {
-    console.log('time to connect to sdk server')
+    log.info('time to connect to sdk server')
     ws = new WebSocket(url)
     ws.on('open', () => {
-        console.log('connected to sdk server')
+        log.info('connected to sdk server')
         ws.send('connected')
         process.send!({ name: 'sdk-web-socket-connected', value: true })
 
@@ -24,24 +26,24 @@ function connectToSDKServer() {
             process.send!(message)
         }
         else if (message.name === 'is-on-track') {
-            console.log('utility file() is-on-track', message.value)
+            log.info('utility file() is-on-track', message.value)
             process.send!({ name: 'is-on-track', value: message.value })
         }
         else {
-            console.log('unknown message', message)
+            log.info('unknown message', message)
         }
     })
 
     ws.on('error', () => {
-        console.log('error connecting to sdk server')
-        console.log('retrying in 5 seconds')
+        log.info('error connecting to sdk server')
+        log.info('retrying in 5 seconds')
         setTimeout(() => {
             connectToSDKServer()
         }, 5000)
     })
 
     ws.on('close', function close() {
-        console.log('disconnected')
+        log.info('disconnected')
         ws.send!('close')
         ws.close()
 
@@ -55,8 +57,8 @@ function connectToSDKServer() {
 
 connectToSDKServer()
 
-console.log(`Hello from ${process.argv[2]}!`)
+log.info(`Hello from ${process.argv[2]}!`)
 
 process.on('message', function (message: any) {
-    console.log(`Message from main: ${message}`)
+    log.info(`Message from main: ${message}`)
 })

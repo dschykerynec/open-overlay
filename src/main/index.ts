@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+import log from 'electron-log'
+
 import { fork, ChildProcess } from 'child_process'
 import { resolve } from 'path'
 
@@ -13,6 +15,12 @@ let standingsWindow: BrowserWindow | null
 const windows: BrowserWindow[] = []
 
 let webSocketChild: ChildProcess
+
+function setupLogging(): void {
+    log.initialize()
+    log.info('logger initialized')
+}
+setupLogging()
 
 function setupWebSocketUtility(): void {
     webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
@@ -26,27 +34,27 @@ function setupWebSocketUtility(): void {
         }
         else if (message.name === 'is-on-track') {
             if (message.value === true) {
-                console.log('is-on-track TRUE open all windows')
+                log.info('is-on-track TRUE open all windows')
                 setUpOverlays()
             }
             else if (message.value === false) {
-                console.log('is-on-track FALSE close all windows')
+                log.info('is-on-track FALSE close all windows')
                 closeAllWindows()
             }
         }
         else if (message.name === 'game-closed') {
-            console.log('game-closed CLOSE ALL WINDOWS')
+            log.info('game-closed CLOSE ALL WINDOWS')
             closeAllWindows()
         }
         else if (message.name === 'sdk-web-socket-connected') {
-            console.log('sdk-web-socket-connected')
+            log.info('sdk-web-socket-connected')
         }
         else if (message.name === 'is') {
 
         }
     })
     webSocketChild.on('close', function (code) {
-        console.log('child process exited with code ' + code)
+        log.info('child process exited with code ' + code)
         closeAllWindows()
     })
     setTimeout(() => {
@@ -79,7 +87,7 @@ function setUpLapTimesWindow() {
     })
 
     lapTimesWindow.on('close', () => {
-        console.log('lapTimesWindow closed')
+        log.info('lapTimesWindow closed')
         lapTimesWindow = null
     })
 
@@ -125,7 +133,7 @@ function setUpTelemetryWindow() {
     })
 
     telemetryWindow.on('close', () => {
-        console.log('telemetry closed')
+        log.info('telemetry closed')
         telemetryWindow = null
     })
 
@@ -168,7 +176,7 @@ function setUpRelativeWindow() {
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
         relativeWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/html/relative.html`)
     } else {
-        console.log('else')
+        log.info('else')
         relativeWindow.loadFile(join(__dirname, '../renderer/html/relative.html'))
     }
 }
@@ -199,7 +207,7 @@ function setUpStandingsWindow() {
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
         standingsWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/html/standings.html`)
     } else {
-        console.log('else')
+        log.info('else')
         standingsWindow.loadFile(join(__dirname, '../renderer/html/standings.html'))
     }
 }
@@ -213,7 +221,7 @@ function setUpOverlays(): void {
 }
 
 ipcMain.on('close-program', (_event, _title) => {
-    console.log('CLOSE PROGRAM IPC MAIN EVENT')
+    log.info('CLOSE PROGRAM IPC MAIN EVENT')
     app.quit()
 })
 
@@ -234,7 +242,7 @@ app.whenReady().then(() => {
 
     setupWebSocketUtility()
 
-    // setUpOverlays()
+    setUpOverlays()
 
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
@@ -247,7 +255,7 @@ app.whenReady().then(() => {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) {
-            console.log('nothing to do here since windows only open when connection is established')
+            log.info('nothing to do here since windows only open when connection is established')
         }
     })
 })
@@ -257,17 +265,17 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        console.log('window-all-closed')
+        log.info('window-all-closed')
     }
 })
 
 app.on('before-quit', () => {
-    console.log('BEGINNING OF BEFORE QUIT')
+    log.info('BEGINNING OF BEFORE QUIT')
 
-    console.log('killing child process')
+    log.info('killing child process')
     webSocketChild.kill()
 
-    console.log('END OF BEFORE QUIT')
+    log.info('END OF BEFORE QUIT')
 })
 
 // In this file you can include the rest of your app"s specific main process
