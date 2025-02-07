@@ -21,7 +21,7 @@
     "build:linux": "npm run build && electron-builder --linux",
     "package": "electron-vite build --outDir=dist && electron-forge package",
     "make": "electron-vite build --outDir=dist && electron-forge make",
-    "publish": "electron-forge publish"
+    "publish": "electron-vite build --outDir=dist && electron-forge publish"
   },
   "dependencies": {
     "@electron-forge/cli": "^6.2.1",
