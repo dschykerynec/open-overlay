@@ -8,8 +8,10 @@ import { resolve, join } from 'path'
 
 import icon from '../../resources/racing-car.png?asset'
 
+const updateInterval = '24 hour'
 updateElectronApp({
-    updateInterval: '24 hour',
+    updateInterval: updateInterval,
+    logger: require('electron-log')
 })
 
 let lapTimesWindow: BrowserWindow | null
@@ -27,6 +29,7 @@ function setupLogging(): void {
 setupLogging()
 
 log.info('app version: ' + app.getVersion())
+log.info('update interval: ' + updateInterval)
 
 function setupWebSocketUtility(): void {
     webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
