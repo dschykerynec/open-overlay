@@ -27,7 +27,6 @@ const updateInterval = '24 hour'
 
 log.info('app version: ' + app.getVersion())
 log.info('update interval: ' + updateInterval)
-log.info('calling updateElectronApp()')
 
 updateElectronApp({
     updateSource: {
@@ -37,6 +36,8 @@ updateElectronApp({
     updateInterval: updateInterval,
     logger: require('electron-log')
 })
+
+log.info('called updateElectronApp()')
 
 function setupWebSocketUtility(): void {
     webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
