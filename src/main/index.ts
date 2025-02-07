@@ -1,12 +1,13 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
-
 import log from 'electron-log'
 
 import { fork, ChildProcess } from 'child_process'
-import { resolve } from 'path'
+import { resolve, join } from 'path'
+
+import icon from '../../resources/racing-car.png?asset'
+
+require('update-electron-app')
 
 let lapTimesWindow: BrowserWindow | null
 let telemetryWindow: BrowserWindow | null
