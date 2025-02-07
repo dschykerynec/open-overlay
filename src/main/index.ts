@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
-import { updateElectronApp,UpdateSourceType  } from 'update-electron-app'
+import { updateElectronApp, UpdateSourceType  } from 'update-electron-app'
 
 import { fork, ChildProcess } from 'child_process'
 import { resolve, join } from 'path'
@@ -23,7 +23,7 @@ function setupLogging(): void {
 }
 setupLogging()
 
-const updateInterval = '24 hour'
+const updateInterval = '24 hours'
 
 log.info('app version: ' + app.getVersion())
 log.info('update interval: ' + updateInterval)
