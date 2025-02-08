@@ -32,14 +32,16 @@ function handleSquirrelEvents(): boolean {
     log.info(options)
 
     if (!(options && options.length >= 1)){
-        log.info('no options')
+        log.info('no options. checking for app update')
+        tryUpdateApp()
         return true
     }
 
     let m = options[0].match(/--squirrel-([a-z]+)/);
     if (!(m && m[1]))
     {
-        log.info('running app normally')
+        log.info('running app normally. will check for app update')
+        tryUpdateApp()
         return true
     }
     if (m[1] === 'firstrun')
@@ -72,10 +74,6 @@ function handleSquirrelEvents(): boolean {
         // todo: uninstall stuff
 
         return false
-    }
-    else {
-        log.info('')
-        tryUpdateApp()
     }
 
     return true
