@@ -17,7 +17,10 @@ let webSocketChild: ChildProcess
 
 function setupLogging(): void {
     log.initialize()
+    log.info('-----------------------------------------------------')
     log.info('logger initialized')
+    log.info('log levels:')
+    log.info(log.levels)
 }
 setupLogging()
 
