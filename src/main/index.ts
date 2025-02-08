@@ -4,7 +4,6 @@ import log from 'electron-log'
 
 import { fork, ChildProcess } from 'child_process'
 import { resolve, join } from 'path'
-require('dotenv').config({ path: '.env' });
 
 import icon from '../../resources/racing-car.png?asset'
 
@@ -26,15 +25,10 @@ function updateApp(): void {
     const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
     const updateInterval = '24 hours'
 
-    log.info('NODE_ENV: ' + process.env.NODE_ENV)
     log.info('app version: ' + app.getVersion())
     log.info('update interval: ' + updateInterval)
 
     updateElectronApp({
-        updateSource: {
-            type: UpdateSourceType.ElectronPublicUpdateService,
-            repo: `${process.env.REPOSITORY_OWNER}/${process.env.REPOSITORY_NAME}`
-        },
         updateInterval: updateInterval,
         logger: require('electron-log')
     })
