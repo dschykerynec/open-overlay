@@ -129,7 +129,7 @@ function setUpTelemetryWindow() {
         frame: false,
         // frame: true,
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.85,
         alwaysOnTop: true,
         // focusable: false,
         ...(process.platform === 'linux' ? { icon } : {}),
