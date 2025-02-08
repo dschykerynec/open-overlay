@@ -32,8 +32,6 @@ function updateApp(): void {
         updateInterval: updateInterval,
         logger: require('electron-log')
     })
-
-    log.info('updateElectronApp() done')   
 }
 updateApp()
 
