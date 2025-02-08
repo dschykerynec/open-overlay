@@ -39,12 +39,12 @@ function handleSquirrelEvents(): boolean {
     let m = options[0].match(/--squirrel-([a-z]+)/);
     if (!(m && m[1]))
     {
-        log.info('!(m && m[1])')
+        log.info('running app normally')
         return true
     }
     if (m[1] === 'firstrun')
     {
-        log.info('m[1] === "firstrun"')
+        log.info('running app normally')
         return true
     }
 
