@@ -24,7 +24,47 @@ function setupLogging(): void {
 }
 setupLogging()
 
-function updateApp(): void {
+function handleSquirrelEvents(): void {
+    log.info('handleSquirrelEvents')
+    log.info(process.argv)
+
+    if (process.argv.length === 1) {
+        log.info('nothing to process from squirrel')
+        tryUpdateApp()
+        return
+    }
+
+    var squirrelCommand = process.argv[1]
+    log.info('squirrelCommand: ' + squirrelCommand)
+
+    if (squirrelCommand === '--squirrel-install') {
+        // todo: install stuff
+        app.quit()
+    }
+    else if (squirrelCommand === '--squirrel-firstrun') {
+        log.info('first runtime running the app. nothing special to do')
+        return
+    }
+    else if (squirrelCommand.includes('--squirrel-updated')) {
+        log.info('updated runtime running the app. closing app')
+        app.quit()
+    }
+    else if (squirrelCommand.includes('--squirrel-obsolete')) {
+        log.info('obsolete version. closing app')
+        app.quit()
+
+    }
+    else if (squirrelCommand.includes('--squirrel-uninstall')) {
+        log.info('uninstalling app.')
+        
+        // todo: uninstall stuff
+
+        app.quit()
+    }
+}
+handleSquirrelEvents()
+
+function tryUpdateApp(): void {
     const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
     const updateInterval = '24 hours'
 
@@ -36,7 +76,6 @@ function updateApp(): void {
         logger: require('electron-log')
     })
 }
-updateApp()
 
 function setupWebSocketUtility(): void {
     webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
