@@ -6,6 +6,8 @@ This project is dependent on my iRacing SDKWrapper Service. The service interfac
 
 Built with [Electron.js](https://www.electronjs.org/) and [Vue.js](https://vuejs.org/). Project is scaffolded using [electron-vite](https://electron-vite.org/)
 
+![image](docs/images/overlay-sample.png)
+
 ## Why does this exist?
 
 I love sim racing and sometimes my friends watch me stream my races in Discord. I thought it would be neat to have a detailed telemetry overlay for them to see while I race, but the popular solutions on the market charge a monthly fee that is close to the subscription cost of iRacing. Other open-source solutiosn exist, such as [iRon](https://github.com/lespalt/iRon), but they haven't been updated in some time, and I thought it would be a fun learning opportunity to build this kind of thing from scratch myself.
