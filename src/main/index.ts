@@ -17,10 +17,10 @@ let webSocketChild: ChildProcess
 
 function setupLogging(): void {
     log.initialize()
-    log.info('-----------------------------------------------------')
-    log.info('logger initialized')
-    log.info('log levels:')
-    log.info(log.levels)
+    const timestamp = new Date().getTime()
+    log.transports.file.fileName = `main-${timestamp}.log`
+
+    log.info(`logger initialized. logging to file ${log.transports.file.fileName}`)
 }
 setupLogging()
 
