@@ -24,45 +24,68 @@ function setupLogging(): void {
 }
 setupLogging()
 
-function handleSquirrelEvents(): void {
+function handleSquirrelEvents(): boolean {
     log.info('handleSquirrelEvents')
-    log.info(process.argv)
+    
+    let options = process.argv.slice(1)
+    log.info('command line options: ')
+    log.info(options)
 
-    if (process.argv.length === 1) {
-        log.info('nothing to process from squirrel')
-        tryUpdateApp()
-        return
+    if (!(options && options.length >= 1)){
+        log.info('no options')
+        return true
+    }
+
+    let m = options[0].match(/--squirrel-([a-z]+)/);
+    if (!(m && m[1]))
+    {
+        log.info('!(m && m[1])')
+        return true
+    }
+    if (m[1] === 'firstrun')
+    {
+        log.info('m[1] === "firstrun"')
+        return true
     }
 
     var squirrelCommand = process.argv[1]
     log.info('squirrelCommand: ' + squirrelCommand)
 
-    if (squirrelCommand === '--squirrel-install') {
+    if (squirrelCommand === 'install') {
         // todo: install stuff
-        app.quit()
+        return false
     }
-    else if (squirrelCommand === '--squirrel-firstrun') {
+    else if (squirrelCommand === 'firstrun') {
         log.info('first runtime running the app. nothing special to do')
-        return
+        return true
     }
-    else if (squirrelCommand.includes('--squirrel-updated')) {
+    else if (squirrelCommand.includes('updated')) {
         log.info('updated runtime running the app. closing app')
-        app.quit()
+        return false
     }
-    else if (squirrelCommand.includes('--squirrel-obsolete')) {
+    else if (squirrelCommand.includes('obsolete')) {
         log.info('obsolete version. closing app')
-        app.quit()
-
+        return false
     }
-    else if (squirrelCommand.includes('--squirrel-uninstall')) {
+    else if (squirrelCommand.includes('uninstall')) {
         log.info('uninstalling app.')
         
         // todo: uninstall stuff
 
-        app.quit()
+        return false
     }
+    else {
+        log.info('')
+        tryUpdateApp()
+    }
+
+    return true
 }
-handleSquirrelEvents()
+const shouldRunApp = handleSquirrelEvents()
+if (!shouldRunApp) {
+    app.quit()
+    process.exit(0)
+}
 
 function tryUpdateApp(): void {
     const { updateElectronApp, UpdateSourceType } = require('update-electron-app')

@@ -31,15 +31,15 @@ function connectToSDKServer() {
     })
 
     ws.on('error', () => {
-        log.info('error connecting to sdk server')
-        log.info('retrying in 5 seconds')
+        // log.info('error connecting to sdk server')
+        // log.info('retrying in 5 seconds')
         setTimeout(() => {
             connectToSDKServer()
         }, 5000)
     })
 
     ws.on('close', function close() {
-        log.info('disconnected')
+        // log.info('disconnected')
         ws.send!('close')
         ws.close()
     })
