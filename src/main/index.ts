@@ -24,6 +24,8 @@ function setupLogging(): void {
 }
 setupLogging()
 
+log.info('app version: ' + app.getVersion())
+
 function handleSquirrelEvents(): boolean {
     log.info('handleSquirrelEvents')
     
@@ -87,9 +89,6 @@ if (!shouldRunApp) {
 function tryUpdateApp(): void {
     const { updateElectronApp, UpdateSourceType } = require('update-electron-app')
     const updateInterval = '24 hours'
-
-    log.info('app version: ' + app.getVersion())
-    // log.info('update interval: ' + updateInterval)
 
     updateElectronApp({
         // updateInterval: updateInterval,
