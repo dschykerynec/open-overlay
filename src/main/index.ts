@@ -48,26 +48,25 @@ function handleSquirrelEvents(): boolean {
         return true
     }
 
-    var squirrelCommand = process.argv[1]
-    log.info('squirrelCommand: ' + squirrelCommand)
+    log.info('squirrelCommand: ' + m[1])
 
-    if (squirrelCommand === 'install') {
+    if (m[1] === 'install') {
         // todo: install stuff
         return false
     }
-    else if (squirrelCommand === 'firstrun') {
+    else if (m[1] === 'firstrun') {
         log.info('first runtime running the app. nothing special to do')
         return true
     }
-    else if (squirrelCommand.includes('updated')) {
+    else if (m[1] === 'updated') {
         log.info('updated runtime running the app. closing app')
         return false
     }
-    else if (squirrelCommand.includes('obsolete')) {
+    else if (m[1] === 'obsolete') {
         log.info('obsolete version. closing app')
         return false
     }
-    else if (squirrelCommand.includes('uninstall')) {
+    else if (m[1] === 'uninstall') {
         log.info('uninstalling app.')
         
         // todo: uninstall stuff
