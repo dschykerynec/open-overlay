@@ -51,7 +51,7 @@ function handleSquirrelEvents(): boolean {
     log.info('squirrelCommand: ' + m[1])
 
     if (m[1] === 'install') {
-        // todo: install stuff
+        log.info('installing app for the first time')
         return false
     }
     else if (m[1] === 'firstrun') {
