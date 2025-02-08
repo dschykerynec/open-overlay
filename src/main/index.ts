@@ -26,10 +26,10 @@ function updateApp(): void {
     const updateInterval = '24 hours'
 
     log.info('app version: ' + app.getVersion())
-    log.info('update interval: ' + updateInterval)
+    // log.info('update interval: ' + updateInterval)
 
     updateElectronApp({
-        updateInterval: updateInterval,
+        // updateInterval: updateInterval,
         logger: require('electron-log')
     })
 }
