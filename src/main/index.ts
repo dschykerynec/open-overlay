@@ -33,7 +33,7 @@ function updateApp(): void {
         logger: require('electron-log')
     })
 
-    log.info('called updateElectronApp()')   
+    log.info('updateElectronApp() done')   
 }
 updateApp()
 
