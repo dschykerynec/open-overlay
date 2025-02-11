@@ -1,7 +1,7 @@
 <template>
   <div class="telemetry-overlay">
     <div class="telemetry-row">
-      <div class="input-container input-graph">
+      <div class="input-container input-graph-container">
         <Line id="my-chart-id" class="graph" :options="chartOptions" :data="chartData" />
       </div>
       <div class="input-container input-bar-container">
@@ -57,16 +57,18 @@ const chartData = computed(() => {
       {
         label: 'Brake Input',
         borderColor: 'red',
-        borderWidth: 1.5,
+        borderWidth: 2.1,
         data: last150Inputs.map(input => input.brakeInputValue),
-        fill: false
+        fill: false,
+        tension: 0.4
       },
       {
         label: 'Throttle Input',
         borderColor: '#06ba12',
-        borderWidth: 1.5,
+        borderWidth: 2.1,
         data: last150Inputs.map(input => input.throttleInputValue),
-        fill: false
+        fill: false,
+        tension: 0.4
       }
     ]
   }
@@ -146,7 +148,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: #2b2b2b;
+  background-color: black;
 }
 
 .telemetry-row {
@@ -156,14 +158,14 @@ onMounted(() => {
   height: 130px;
 }
 
-.input-graph {
+.input-graph-container {
   width: 210px;
-  border: 1px solid black;
+  background-color: #404040;
 }
 
 .input-bar-container {
   width: 15px;
-  border: 1px solid black;
+  background-color: #404040;
 
   position: relative;
   overflow: hidden;
@@ -175,8 +177,8 @@ onMounted(() => {
   flex-direction: column;
   justify-content: start;
   padding: 5px 0px;
-  border: 1px solid black;
   color: white;
+  background-color: #404040;
 }
 
 .misc-item {
