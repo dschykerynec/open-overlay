@@ -25,10 +25,11 @@ function setupLogging(): void {
 setupLogging()
 
 log.info('app version: ' + app.getVersion())
+log.info('isDev: ' + is.dev)
 
 function handleSquirrelEvents(): boolean {
     log.info('handleSquirrelEvents')
-    
+
     let options = process.argv.slice(1)
     log.info('command line options: ')
     log.info(options)
@@ -72,7 +73,7 @@ function handleSquirrelEvents(): boolean {
     }
     else if (m[1] === 'uninstall') {
         log.info('uninstalling app.')
-        
+
         // todo: uninstall stuff
 
         return false
@@ -182,8 +183,8 @@ function setUpTelemetryWindow() {
     telemetryWindow = new BrowserWindow({
         width: 380,
         height: 225,
-        // height: 325,
-        x: 1096,
+        // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
+        x: is.dev ? 1096+2560 : 1096,
         y: 773,
         show: false,
         autoHideMenuBar: true,
@@ -315,7 +316,8 @@ app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.electron')
 
     setupWebSocketUtility()
-    
+    // setUpOverlays()
+
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
     // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
