@@ -24,8 +24,6 @@ All of this will undoubtedly incur a larger performance cost, but if I'm two thi
 
 All that said, I've been running this overlay during my league races while streaming in Discord and I have no issues whatsoever. It runs just fine on my machine, as it goes.
 
-I am of course open to feedback or suggestions, and can be reached at <simple.overlay.dev@gmail.com>
-
 ## Project Setup
 Assuming you are familiar with node projects, follow the below guide after cloning this repo.
 
@@ -54,6 +52,14 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+
+## Roadmap
+While this is mainly a fun side-project for learning, I do plan to update it (in a probably irregular fashion). Below are my current priorities roughly in order from top to bottom.
+
+- main menu window to configure user preferences
+- draggable windows with configurable default positions
+- relative window
+- standings window
 
 ## Attributions
 F1 Steering wheel icon: <a href="https://www.flaticon.com/free-icons/f1" title="f1 icons">F1 icons created by Freepik - Flaticon</a>
