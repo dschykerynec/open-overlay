@@ -57,18 +57,18 @@ const chartData = computed(() => {
       {
         label: 'Brake Input',
         borderColor: 'red',
-        borderWidth: 2.1,
+        borderWidth: 2.0,
         data: last150Inputs.map(input => input.brakeInputValue),
         fill: false,
-        tension: 0.4
+        cubicInterpolationMode: 'monotone' as const,
       },
       {
         label: 'Throttle Input',
         borderColor: '#06ba12',
-        borderWidth: 2.1,
+        borderWidth: 2.0,
         data: last150Inputs.map(input => input.throttleInputValue),
         fill: false,
-        tension: 0.4
+        cubicInterpolationMode: 'monotone' as const,
       }
     ]
   }
