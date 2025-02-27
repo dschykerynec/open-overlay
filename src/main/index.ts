@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, UtilityProcess, utilityProcess, MessageChannelMain } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
 
@@ -13,7 +13,7 @@ let relativeWindow: BrowserWindow | null
 let standingsWindow: BrowserWindow | null
 const windows: BrowserWindow[] = []
 
-let webSocketChild: ChildProcess
+let sdkUtilityProcess: UtilityProcess
 
 function setupLogging(): void {
     log.initialize()
@@ -97,44 +97,53 @@ function tryUpdateApp(): void {
     })
 }
 
-function setupWebSocketUtility(): void {
-    webSocketChild = fork(resolve(__dirname, 'webSocketUtility.js'), ['child'])
+console.log('\n')
 
-    webSocketChild.on('message', function (message: TelemetryValue) {
-        if (message.name === 'LastLapTime') {
-            lapTimesWindow?.webContents?.send('sdk-telemetry-update', message)
+function setupSdkUtility(): void {
+    const { port1, port2 } = new MessageChannelMain()
+    sdkUtilityProcess = utilityProcess.fork(resolve(__dirname, 'sdkUtility.js'))
+    sdkUtilityProcess.postMessage({ message: 'hello' }, [port1])
+
+    sdkUtilityProcess.on('spawn', function () {
+        log.info('sdkUtilityProcesss successfully spawned')
+    })
+
+    port2.on('message', function (message) {
+        const data = message.data as TelemetryValue;
+        if (data.name === 'LastLapTime') {
+            lapTimesWindow?.webContents?.send('sdk-telemetry-update', data)
         }
-        else if (message.name === 'TelemetryDictionary') {
-            telemetryWindow?.webContents?.send('sdk-telemetry-update', message.value)
+        else if (data.name === 'TelemetryDictionary') {
+            telemetryWindow?.webContents?.send('sdk-telemetry-update', data.value)
         }
-        else if (message.name === 'is-on-track') {
-            if (message.value === true) {
+        else if (data.name === 'is-on-track') {
+            if (data.value === true) {
                 log.info('is-on-track TRUE open all windows')
                 setUpOverlays()
             }
-            else if (message.value === false) {
+            else if (data.value === false) {
                 log.info('is-on-track FALSE close all windows')
                 closeAllWindows()
             }
         }
-        else if (message.name === 'game-closed') {
+        else if (data.name === 'game-closed') {
             log.info('game-closed CLOSE ALL WINDOWS')
             closeAllWindows()
         }
-        else if (message.name === 'sdk-web-socket-connected') {
+        else if (data.name === 'sdk-web-socket-connected') {
             log.info('sdk-web-socket-connected')
         }
-        else if (message.name === 'is') {
+        else if (data.name === 'is') {
 
         }
     })
-    webSocketChild.on('close', function (code) {
-        log.info('child process exited with code ' + code)
+    port2.start()
+    port2.postMessage({ message: 'hello port 1' })
+
+    sdkUtilityProcess.on('exit', function (code) {
+        log.info('sdkUtilityProcesss exited with code ' + code)
         closeAllWindows()
     })
-    setTimeout(() => {
-        webSocketChild.send('ping')
-    }, 2_500)
 }
 
 function setUpLapTimesWindow() {
@@ -315,7 +324,7 @@ app.whenReady().then(() => {
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.electron')
 
-    setupWebSocketUtility()
+    setupSdkUtility()
     // setUpOverlays()
 
     // Default open or close DevTools by F12 in development
@@ -346,8 +355,13 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
     log.info('BEGINNING OF BEFORE QUIT')
 
-    log.info('killing child process')
-    webSocketChild.kill()
+    if (sdkUtilityProcess.pid !== undefined) {
+        log.info('killing sdkUtilityProcess process')
+        sdkUtilityProcess.kill()
+    }
+    else {
+        log.info('sdkUtilityProcess already exited')
+    }
 
     log.info('END OF BEFORE QUIT')
 })

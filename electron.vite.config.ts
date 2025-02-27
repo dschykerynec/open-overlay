@@ -9,7 +9,7 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/main/index.ts'),
-          webSocketUtility: resolve(__dirname, 'src/main/utilities/webSocketUtility.ts')
+          sdkUtility: resolve(__dirname, 'src/main/utilities/sdkUtility.ts')
         }
       }
     }
