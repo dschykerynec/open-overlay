@@ -10,7 +10,7 @@ var electron_vite_config_default = defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__electron_vite_injected_dirname, "src/main/index.ts"),
-          webSocketUtility: resolve(__electron_vite_injected_dirname, "src/main/utilities/webSocketUtility.ts")
+          sdkUtility: resolve(__electron_vite_injected_dirname, "src/main/utilities/sdkUtility.ts")
         }
       }
     }
