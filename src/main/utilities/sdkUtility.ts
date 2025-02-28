@@ -17,15 +17,6 @@ process.parentPort.once('message', (e) => {
   })
 
   mainPort.start()
-
-  mainPort.postMessage({
-    speed: 120.5,
-    gear: 3,
-    rpm: 8500,
-    throttle: 0.5,
-    brake: 0.0
-    // Any other data you want to send
-  })
 })
 
 const irsdk = require('iracing-sdk-js')
@@ -47,12 +38,10 @@ iracing.on('Telemetry', (telemetry) => {
     log.info('User just left track')
     isOnTrack = false
     mainPort.postMessage({ name: 'is-on-track', value: false })
-  }
-  else if (!isOnTrack && telemetry.values.IsOnTrack) {
+  } else if (!isOnTrack && telemetry.values.IsOnTrack) {
     log.info('User just entered track')
     isOnTrack = true
     mainPort.postMessage({ name: 'is-on-track', value: true })
-
   }
   const telemetryValues: TelemetryValue = {
     name: 'TelemetryDictionary',
