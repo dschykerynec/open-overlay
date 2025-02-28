@@ -40,8 +40,7 @@ import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale)
 
-import { Telemetry } from 'src/preload/index.d'
-
+import { Telemetry } from '@preload/index.d'
 // import log from 'electron-log/renderer'
 
 const pedalInputs = ref<Array<{ brakeInputValue: number, throttleInputValue: number }>>(Array(200).fill({ brake: 0.00, throttle: 0.00 }))
