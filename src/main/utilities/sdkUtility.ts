@@ -1,14 +1,11 @@
 import { MessagePortMain } from 'electron'
 
 import log from 'electron-log'
-import { WebSocket } from 'ws'
 
 import { TelemetryValue } from '../../preload/index.d'
+import { s } from 'vite/dist/node/types.d-aGj9QkWt'
 
 let mainPort: MessagePortMain
-
-const url = 'ws://localhost:7125/sdk'
-let ws: WebSocket
 
 process.parentPort.once('message', (e) => {
   mainPort = e.ports[0]
@@ -31,42 +28,30 @@ process.parentPort.once('message', (e) => {
   })
 })
 
-function connectToSDKServer() {
-  log.info('connecting to iRacing SDKWrapper Service')
-    ws = new WebSocket(url)
-    ws.on('open', () => {
-        log.info('connected to iRacing SDKWrapper Service')
-        ws.send('connected')
-        mainPort.postMessage({ name: 'sdk-web-socket-connected', value: true })
-    })
+const irsdk = require('iracing-sdk-js')
+irsdk.init({ telemetryUpdateInterval: 50 })
+const iracing = irsdk.getInstance()
 
-    ws.on('message', function message(data) {
-        const message: TelemetryValue = JSON.parse(data.toString('utf-8'))
-        if (message.name === 'TelemetryDictionary') {
-            mainPort.postMessage(message)
-        }
-        else if (message.name === 'is-on-track') {
-            mainPort.postMessage({ name: 'is-on-track', value: message.value })
-        }
-        else {
-            log.warn('unknown message')
-            log.warn(message)
-        }
-    })
+log.info('irsdk initialized')
 
-    ws.on('error', () => {
-        // log.info('error connecting to sdk server')
-        // log.info('retrying in 5 seconds')
-        setTimeout(() => {
-            connectToSDKServer()
-        }, 5000)
-    })
+iracing.on('Connected', () => {
+  log.info('Connected to iRacing')
+})
 
-    ws.on('close', function close() {
-        // log.info('disconnected')
-        ws.send!('close')
-        ws.close()
-    })
-}
+iracing.on('Disconnected', () => {
+  log.info('Disconnected from iRacing')
+})
 
-connectToSDKServer()
+iracing.on('Telemetry', (telemetry) => {
+  const telemetryValues: TelemetryValue = {
+    name: 'TelemetryDictionary',
+    value: {
+      BrakeInputValue: telemetry.values.BrakeRaw,
+      ThrottleInputValue: telemetry.values.ThrottleRaw,
+      SteeringInputValue: telemetry.values.SteeringWheelAngle,
+      GearValue: telemetry.values.Gear,
+      SpeedValue: telemetry.values.Speed,
+    }
+  }
+  mainPort.postMessage(telemetryValues)
+})

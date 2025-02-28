@@ -110,10 +110,8 @@ function setupSdkUtility(): void {
 
     port2.on('message', function (message) {
         const data = message.data as TelemetryValue;
-        if (data.name === 'LastLapTime') {
-            lapTimesWindow?.webContents?.send('sdk-telemetry-update', data)
-        }
-        else if (data.name === 'TelemetryDictionary') {
+        if (data.name === 'TelemetryDictionary') {
+            // log.info('ReceivedTelemetryDictionary')
             telemetryWindow?.webContents?.send('sdk-telemetry-update', data.value)
         }
         else if (data.name === 'is-on-track') {
@@ -193,7 +191,8 @@ function setUpTelemetryWindow() {
         width: 380,
         height: 225,
         // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
-        x: is.dev ? 1096+2560 : 1096,
+        // x: is.dev ? 1096+2560 : 1096,
+        x: 1096,
         y: 773,
         show: false,
         autoHideMenuBar: true,
@@ -325,7 +324,7 @@ app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.electron')
 
     setupSdkUtility()
-    // setUpOverlays()
+    setUpOverlays()
 
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
