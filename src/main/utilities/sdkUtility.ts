@@ -4,8 +4,10 @@ import log from 'electron-log'
 
 import { TelemetryValue } from '../../preload/index.d'
 import { s } from 'vite/dist/node/types.d-aGj9QkWt'
+import { getAllJSDocTagsOfKind } from 'typescript'
 
 let mainPort: MessagePortMain
+let isOnTrack: Boolean = false
 
 process.parentPort.once('message', (e) => {
   mainPort = e.ports[0]
@@ -23,7 +25,7 @@ process.parentPort.once('message', (e) => {
     gear: 3,
     rpm: 8500,
     throttle: 0.5,
-    brake: 0.0,
+    brake: 0.0
     // Any other data you want to send
   })
 })
@@ -43,6 +45,17 @@ iracing.on('Disconnected', () => {
 })
 
 iracing.on('Telemetry', (telemetry) => {
+  if (isOnTrack && !telemetry.values.IsOnTrack) {
+    log.info('User just left track')
+    isOnTrack = false
+    mainPort.postMessage({ name: 'is-on-track', value: false })
+  }
+  else if (!isOnTrack && telemetry.values.IsOnTrack) {
+    log.info('User just entered track')
+    isOnTrack = true
+    mainPort.postMessage({ name: 'is-on-track', value: true })
+
+  }
   const telemetryValues: TelemetryValue = {
     name: 'TelemetryDictionary',
     value: {
@@ -50,7 +63,7 @@ iracing.on('Telemetry', (telemetry) => {
       ThrottleInputValue: telemetry.values.ThrottleRaw,
       SteeringInputValue: telemetry.values.SteeringWheelAngle,
       GearValue: telemetry.values.Gear,
-      SpeedValue: telemetry.values.Speed,
+      SpeedValue: telemetry.values.Speed
     }
   }
   mainPort.postMessage(telemetryValues)

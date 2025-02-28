@@ -324,7 +324,7 @@ app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.electron')
 
     setupSdkUtility()
-    setUpOverlays()
+    // setUpOverlays()
 
     // Default open or close DevTools by F12 in development
     // and ignore CommandOrControl + R in production.
