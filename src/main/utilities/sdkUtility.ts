@@ -3,8 +3,6 @@ import { MessagePortMain } from 'electron'
 import log from 'electron-log'
 
 import { TelemetryValue } from '../../preload/index.d'
-import { s } from 'vite/dist/node/types.d-aGj9QkWt'
-import { getAllJSDocTagsOfKind } from 'typescript'
 
 let mainPort: MessagePortMain
 let isOnTrack: Boolean = false
