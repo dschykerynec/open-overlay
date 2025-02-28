@@ -66,7 +66,7 @@ import {
 } from 'chart.js'
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale)
 
-import { Telemetry } from '@preload/types'
+import { Telemetry } from '@customTypes/types'
 // import log from 'electron-log/renderer'
 
 const pedalInputs = ref<Array<{ brakeInputValue: number; throttleInputValue: number }>>(
