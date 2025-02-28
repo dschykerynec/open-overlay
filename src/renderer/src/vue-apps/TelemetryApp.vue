@@ -122,7 +122,7 @@ onMounted(() => {
     pedalInputs.value.shift()
 
     // not sure why the steering angle is negative, but it is
-    steeringAngle.value = `${telemetry.SteeringInputValue * -1}${telemetry.SteeringInputUnit}`
+    steeringAngle.value = `${telemetry.SteeringInputValue * -1}rad`
 
     // gear value is a positive integer when in gear, 0 when in neutral, and negative when in reverse
     if (telemetry.GearValue > 0) {
