@@ -5,26 +5,43 @@
         <Line id="my-chart-id" class="graph" :options="chartOptions" :data="chartData" />
       </div>
       <div class="input-container input-bar-container">
-        <div class="input-bar brake"
-          :style="{ height: pedalInputs[pedalInputs.length - 1].brakeInputValue * 100 + '%', width: '100%' }"></div>
+        <div
+          class="input-bar brake"
+          :style="{
+            height: pedalInputs[pedalInputs.length - 1].brakeInputValue * 100 + '%',
+            width: '100%'
+          }"
+        ></div>
       </div>
       <div class="input-container input-bar-container">
-        <div class="input-bar throttle"
-          :style="{ height: pedalInputs[pedalInputs.length - 1].throttleInputValue * 100 + '%', width: '100%' }"></div>
+        <div
+          class="input-bar throttle"
+          :style="{
+            height: pedalInputs[pedalInputs.length - 1].throttleInputValue * 100 + '%',
+            width: '100%'
+          }"
+        ></div>
       </div>
       <div class="input-container misc-container">
         <div class="misc-item steering-telemetry">
-          <img :src="steeringWheelImage" alt="steering-wheel" width="52" height="52"
-            :style="{ transform: `rotate(${steeringAngle})`, /*filter: `invert(100%) brightness(100%)`*/ }" />
+          <img
+            :src="steeringWheelImage"
+            alt="steering-wheel"
+            width="52"
+            height="52"
+            :style="{
+              transform: `rotate(${steeringAngle})` /*filter: `invert(100%) brightness(100%)`*/
+            }"
+          />
         </div>
-        <div class="misc-item" style="margin-bottom: -3px;">
-          <div style="font-weight: bold; font-size: 2em;">{{ gear }}</div>
+        <div class="misc-item" style="margin-bottom: -3px">
+          <div style="font-weight: bold; font-size: 2em">{{ gear }}</div>
         </div>
-        <div class="misc-item" style="margin-bottom: -2px;">
-          <div style="font-size: 0.8em;">mph</div>
+        <div class="misc-item" style="margin-bottom: -2px">
+          <div style="font-size: 0.8em">mph</div>
         </div>
-        <div class="misc-item" style="margin-bottom: -1px;">
-          <div style="font-size: 1.2em;">{{ speed }}</div>
+        <div class="misc-item" style="margin-bottom: -1px">
+          <div style="font-size: 1.2em">{{ speed }}</div>
         </div>
       </div>
     </div>
@@ -37,13 +54,24 @@ import { onMounted, ref, computed } from 'vue'
 import steeringWheelImage from '@renderer/assets/steering-wheel-colored.png'
 
 import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale
+} from 'chart.js'
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale)
 
-import { Telemetry } from '@preload/index.d'
+import { Telemetry } from '@preload/types'
 // import log from 'electron-log/renderer'
 
-const pedalInputs = ref<Array<{ brakeInputValue: number, throttleInputValue: number }>>(Array(200).fill({ brake: 0.00, throttle: 0.00 }))
+const pedalInputs = ref<Array<{ brakeInputValue: number; throttleInputValue: number }>>(
+  Array(200).fill({ brake: 0.0, throttle: 0.0 })
+)
 const steeringAngle = ref('0rad')
 const gear = ref('N')
 const speed = ref(0)
@@ -57,17 +85,17 @@ const chartData = computed(() => {
         label: 'Brake Input',
         borderColor: 'red',
         borderWidth: 2.0,
-        data: last150Inputs.map(input => input.brakeInputValue),
+        data: last150Inputs.map((input) => input.brakeInputValue),
         fill: false,
-        cubicInterpolationMode: 'monotone' as const,
+        cubicInterpolationMode: 'monotone' as const
       },
       {
         label: 'Throttle Input',
         borderColor: '#06ba12',
         borderWidth: 2.0,
-        data: last150Inputs.map(input => input.throttleInputValue),
+        data: last150Inputs.map((input) => input.throttleInputValue),
         fill: false,
-        cubicInterpolationMode: 'monotone' as const,
+        cubicInterpolationMode: 'monotone' as const
       }
     ]
   }
@@ -118,7 +146,10 @@ onMounted(() => {
   // process the incoming telemetry data being sent from the main process
   window.electronAPI.onSdkTelemetryUpdate((telemetry: Telemetry) => {
     // add the new telemetry data to the pedalInputs array, and remove the oldest data
-    pedalInputs.value.push({ brakeInputValue: telemetry.BrakeInputValue, throttleInputValue: telemetry.ThrottleInputValue })
+    pedalInputs.value.push({
+      brakeInputValue: telemetry.BrakeInputValue,
+      throttleInputValue: telemetry.ThrottleInputValue
+    })
     pedalInputs.value.shift()
 
     // not sure why the steering angle is negative, but it is
@@ -127,11 +158,9 @@ onMounted(() => {
     // gear value is a positive integer when in gear, 0 when in neutral, and negative when in reverse
     if (telemetry.GearValue > 0) {
       gear.value = telemetry.GearValue.toString()
-    }
-    else if (telemetry.GearValue === 0) {
+    } else if (telemetry.GearValue === 0) {
       gear.value = 'N'
-    }
-    else {
+    } else {
       gear.value = 'R'
     }
 
@@ -139,7 +168,6 @@ onMounted(() => {
     speed.value = Math.floor(telemetry.SpeedValue * 2.23694)
   })
 })
-
 </script>
 
 <style lang="scss" scoped>

@@ -2,7 +2,7 @@ import { MessagePortMain } from 'electron'
 
 import log from 'electron-log'
 
-import { TelemetryValue } from '../../preload/index.d'
+import { TelemetryValue } from '../../types/types'
 
 let mainPort: MessagePortMain
 let isOnTrack: Boolean = false
