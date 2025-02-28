@@ -2,8 +2,6 @@ import { MessagePortMain } from 'electron'
 
 import log from 'electron-log'
 
-import { TelemetryValue } from '../../types/types'
-
 let mainPort: MessagePortMain
 let isOnTrack: Boolean = false
 
@@ -13,7 +11,7 @@ process.parentPort.once('message', (e) => {
   // Set up message handler for incoming messages from main
   mainPort.on('message', (message) => {
     log.info('Received message from main:', message)
-    // Handle incoming messages
+    // Todo: handle incoming messages
   })
 
   mainPort.start()

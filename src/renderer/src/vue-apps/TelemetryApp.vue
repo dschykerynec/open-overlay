@@ -30,7 +30,7 @@
             width="52"
             height="52"
             :style="{
-              transform: `rotate(${steeringAngle})` /*filter: `invert(100%) brightness(100%)`*/
+              transform: `rotate(${steeringAngle})`
             }"
           />
         </div>
@@ -67,7 +67,6 @@ import {
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale)
 
 import { Telemetry } from '@customTypes/types'
-// import log from 'electron-log/renderer'
 
 const pedalInputs = ref<Array<{ brakeInputValue: number; throttleInputValue: number }>>(
   Array(200).fill({ brake: 0.0, throttle: 0.0 })
