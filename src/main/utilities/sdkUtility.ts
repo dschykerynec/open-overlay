@@ -46,6 +46,7 @@ iracing.on('Telemetry', (telemetry) => {
     value: {
       BrakeInputValue: telemetry.values.BrakeRaw,
       ThrottleInputValue: telemetry.values.ThrottleRaw,
+      ClutchInputValue: 1 - telemetry.values.ClutchRaw,
       SteeringInputValue: telemetry.values.SteeringWheelAngle,
       GearValue: telemetry.values.Gear,
       SpeedValue: telemetry.values.Speed
