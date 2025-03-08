@@ -68,12 +68,14 @@ ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale,
 
 import { Telemetry } from '@customTypes/types'
 
-const pedalInputs = ref<Array<{ brakeInputValue: number; throttleInputValue: number }>>(
-  Array(200).fill({ brake: 0.0, throttle: 0.0 })
-)
+const pedalInputs = ref<
+  Array<{ brakeInputValue: number; throttleInputValue: number; clutchInputValue: number }>
+>(Array(200).fill({ brake: 0.0, throttle: 0.0 }))
 const steeringAngle = ref('0rad')
 const gear = ref('N')
 const speed = ref(0)
+
+const clutchColor = '#145efc'
 
 const chartData = computed(() => {
   const last150Inputs = pedalInputs.value.slice(-150)
@@ -93,6 +95,14 @@ const chartData = computed(() => {
         borderColor: '#06ba12',
         borderWidth: 2.0,
         data: last150Inputs.map((input) => input.throttleInputValue),
+        fill: false,
+        cubicInterpolationMode: 'monotone' as const
+      },
+      {
+        label: 'Clutch Input',
+        borderColor: clutchColor,
+        borderWidth: 2.0,
+        data: last150Inputs.map((input) => input.clutchInputValue),
         fill: false,
         cubicInterpolationMode: 'monotone' as const
       }
@@ -147,7 +157,8 @@ onMounted(() => {
     // add the new telemetry data to the pedalInputs array, and remove the oldest data
     pedalInputs.value.push({
       brakeInputValue: telemetry.BrakeInputValue,
-      throttleInputValue: telemetry.ThrottleInputValue
+      throttleInputValue: telemetry.ThrottleInputValue,
+      clutchInputValue: telemetry.ClutchInputValue
     })
     pedalInputs.value.shift()
 
@@ -190,7 +201,7 @@ onMounted(() => {
 }
 
 .input-bar-container {
-  width: 15px;
+  width: 18px;
   background-color: #404040;
 
   position: relative;
@@ -198,7 +209,7 @@ onMounted(() => {
 }
 
 .misc-container {
-  width: 90px;
+  width: 80px;
   display: flex;
   flex-direction: column;
   justify-content: start;
