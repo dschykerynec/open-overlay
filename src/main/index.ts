@@ -180,7 +180,7 @@ function setUpLapTimesWindow() {
 
 function setUpTelemetryWindow() {
   telemetryWindow = new BrowserWindow({
-    width: 380,
+    width: 365,
     height: 225,
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
     x: is.dev ? 1096 + 2560 : 1096,
@@ -190,7 +190,7 @@ function setUpTelemetryWindow() {
     frame: false,
     // frame: true,
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.9,
     alwaysOnTop: true,
     // focusable: false,
     ...(process.platform === 'linux' ? { icon } : {}),
