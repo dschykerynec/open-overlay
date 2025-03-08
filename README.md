@@ -4,7 +4,7 @@ A simple, open-source overlay for iRacing. Currently has a telemetry overlay wit
 
 Built with [Electron.js](https://www.electronjs.org/) and [Vue.js](https://vuejs.org/). [iracing-sdk-js](https://github.com/Friss/iracing-sdk-js) is used to interface with the iRacing SDK.
 
-![image](docs/images/overlay-sample.png)
+![image](https://github.com/user-attachments/assets/ae2b3fee-a171-4cc5-bac8-265ec48eba9e)
 
 ## Why does this exist?
 
