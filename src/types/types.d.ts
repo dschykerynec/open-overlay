@@ -23,11 +23,12 @@ export interface TelemetryValue {
 }
 
 export interface Telemetry {
-  ThrottleInputValue: number,
-  BrakeInputValue: number,
-  SteeringInputValue: number,
-  SteeringInputUnit: string,
-  SpeedValue: number,
-  SpeedUnit: string,
+  ThrottleInputValue: number
+  BrakeInputValue: number
+  ClutchInputValue: number
+  SteeringInputValue: number
+  SteeringInputUnit: string
+  SpeedValue: number
+  SpeedUnit: string
   GearValue: number
 }
