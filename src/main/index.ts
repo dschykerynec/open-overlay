@@ -183,8 +183,7 @@ function setUpTelemetryWindow() {
     width: 380,
     height: 225,
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
-    // x: is.dev ? 1096+2560 : 1096,
-    x: 1096,
+    x: is.dev ? 1096 + 2560 : 1096,
     y: 773,
     show: false,
     autoHideMenuBar: true,
