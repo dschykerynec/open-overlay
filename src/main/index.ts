@@ -7,8 +7,7 @@ import {
   utilityProcess,
   MessageChannelMain,
   Tray,
-  Menu,
-  nativeImage
+  Menu
 } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
@@ -249,7 +248,6 @@ app.whenReady().then(() => {
     }
   ])
   tray.setToolTip('Open Overlay')
-  tray.setTitle('This is my title')
   tray.setContextMenu(contextMenu)
 
   setupSdkUtility()
