@@ -2,7 +2,7 @@ require('dotenv').config({ path: '.env' })
 
 module.exports = {
   packagerConfig: {
-    icon: 'resources/racing-car',
+    icon: './resources/race_car_256x256',
     ignore: [
       /^\/src/,
       /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/
@@ -12,7 +12,9 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {}
+      config: {
+        setupIcon: './resources/race_car_256x256.ico'
+      }
     },
     {
       name: '@electron-forge/maker-zip',
