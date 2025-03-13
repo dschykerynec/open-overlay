@@ -5,19 +5,19 @@ import {
   ipcMain,
   UtilityProcess,
   utilityProcess,
-  MessageChannelMain
+  MessageChannelMain,
+  Tray,
+  Menu
 } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
 
 import { resolve, join } from 'path'
 
-import icon from '../../resources/racing-car.png?asset'
+import racingCarIcon from '../../resources/racing-car.png?asset'
+import helmetIcon from '../../resources/helmet_256x256.ico?asset'
 
-let lapTimesWindow: BrowserWindow | null
 let telemetryWindow: BrowserWindow | null
-let relativeWindow: BrowserWindow | null
-let standingsWindow: BrowserWindow | null
 const windows: BrowserWindow[] = []
 
 let sdkUtilityProcess: UtilityProcess
@@ -116,14 +116,14 @@ function setupSdkUtility(): void {
     } else if (data.name === 'is-on-track') {
       if (data.value === true) {
         log.info('is-on-track TRUE open all windows')
-        setUpOverlays()
+        showAllWindows()
       } else if (data.value === false) {
         log.info('is-on-track FALSE close all windows')
-        closeAllWindows()
+        hideAllWindows()
       }
     } else if (data.name === 'game-closed') {
       log.info('game-closed CLOSE ALL WINDOWS')
-      closeAllWindows()
+      hideAllWindows()
     } else if (data.name === 'sdk-web-socket-connected') {
       log.info('sdk-web-socket-connected')
     } else if (data.name === 'is') {
@@ -137,53 +137,13 @@ function setupSdkUtility(): void {
   })
 }
 
-function setUpLapTimesWindow() {
-  lapTimesWindow = new BrowserWindow({
-    width: 300,
-    height: 700,
-    x: 0,
-    y: 0,
-    show: false,
-    autoHideMenuBar: true,
-    frame: true,
-    opacity: 0.25,
-    alwaysOnTop: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
-  // lapTimesWindow.setIgnoreMouseEvents(true)
-  windows.push(lapTimesWindow)
-
-  lapTimesWindow.on('ready-to-show', () => {
-    lapTimesWindow?.show()
-  })
-
-  lapTimesWindow.on('close', () => {
-    log.info('lapTimesWindow closed')
-    lapTimesWindow = null
-  })
-
-  lapTimesWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    lapTimesWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/html/lapTimes.html`)
-  } else {
-    lapTimesWindow.loadFile(join(__dirname, '../renderer/html/lapTimes.html'))
-  }
-}
-
 function setUpTelemetryWindow() {
   telemetryWindow = new BrowserWindow({
     width: 365,
     height: 225,
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
-    x: is.dev ? 1096 + 2560 : 1096,
+    x: 1096,
+    // x: is.dev ? 1096 + 2560 : 1096,
     y: 773,
     show: false,
     autoHideMenuBar: true,
@@ -193,7 +153,8 @@ function setUpTelemetryWindow() {
     opacity: 0.9,
     alwaysOnTop: true,
     // focusable: false,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: racingCarIcon,
+    ...(process.platform === 'linux' ? { icon: racingCarIcon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -203,7 +164,7 @@ function setUpTelemetryWindow() {
   windows.push(telemetryWindow)
 
   telemetryWindow.on('ready-to-show', () => {
-    telemetryWindow?.show()
+    telemetryWindow?.setAlwaysOnTop(true, 'screen-saver')
   })
 
   telemetryWindow.on('close', () => {
@@ -223,74 +184,8 @@ function setUpTelemetryWindow() {
   }
 }
 
-function setUpRelativeWindow() {
-  relativeWindow = new BrowserWindow({
-    width: 500,
-    height: 400,
-    show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
-  windows.push(relativeWindow)
-
-  relativeWindow.on('ready-to-show', () => {
-    relativeWindow?.show()
-  })
-
-  relativeWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    relativeWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/html/relative.html`)
-  } else {
-    log.info('else')
-    relativeWindow.loadFile(join(__dirname, '../renderer/html/relative.html'))
-  }
-}
-
-function setUpStandingsWindow() {
-  standingsWindow = new BrowserWindow({
-    width: 500,
-    height: 400,
-    show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
-    }
-  })
-  windows.push(standingsWindow)
-
-  standingsWindow.on('ready-to-show', () => {
-    standingsWindow?.show()
-  })
-
-  standingsWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    standingsWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/html/standings.html`)
-  } else {
-    log.info('else')
-    standingsWindow.loadFile(join(__dirname, '../renderer/html/standings.html'))
-  }
-}
-
 function setUpOverlays(): void {
   setUpTelemetryWindow()
-  telemetryWindow?.setAlwaysOnTop(true, 'screen-saver')
-  // setUpLapTimesWindow()
-  // setUpRelativeWindow()
-  // setUpStandingsWindow()
 }
 
 ipcMain.on('close-program', (_event, _title) => {
@@ -306,6 +201,24 @@ function closeAllWindows(): void {
   })
 }
 
+function hideAllWindows(): void {
+  windows.forEach((window) => {
+    if (!window.isDestroyed()) {
+      window.hide()
+    }
+  })
+}
+
+function showAllWindows(): void {
+  windows.forEach((window) => {
+    if (!window.isDestroyed()) {
+      window.show()
+    }
+  })
+}
+
+let tray
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -313,8 +226,32 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
+  tray = new Tray(helmetIcon)
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show Windows',
+      click: function () {
+        telemetryWindow?.show()
+      }
+    },
+    {
+      label: 'Hide Windows',
+      click: function () {
+        telemetryWindow?.hide()
+      }
+    },
+    {
+      label: 'Quit App',
+      click: function () {
+        app.quit()
+      }
+    }
+  ])
+  tray.setToolTip('Open Overlay')
+  tray.setContextMenu(contextMenu)
+
   setupSdkUtility()
-  // setUpOverlays()
+  setUpOverlays()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

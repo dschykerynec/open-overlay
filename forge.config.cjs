@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env' })
 
 module.exports = {
   packagerConfig: {
+    icon: 'resources/racing-car',
     ignore: [
       /^\/src/,
       /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/
