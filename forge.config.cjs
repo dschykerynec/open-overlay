@@ -13,6 +13,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
+        icon: './resources/race_car_256x256.ico',
         setupIcon: './resources/race_car_256x256.ico'
       }
     },
