@@ -11,6 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "@renderer/*": ["src/renderer/src/*"],
+      "components/*": ["src/renderer/src/components/*"],
       "@preload/*": ["src/preload/*"],
       "@customTypes/*": ["./src/types/*"],
       "@/*": ["src/*"]

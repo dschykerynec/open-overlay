@@ -11,14 +11,22 @@ import {
 } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
+import { basicMessage } from '../types/types'
+import { UserPreferences } from '../types/userPreferences'
 
 import { resolve, join } from 'path'
 
 import racingCarIcon from '../../resources/racing-car.png?asset'
 import helmetIcon from '../../resources/helmet_256x256.ico?asset'
 
+import fs from 'fs'
+
+let userPreferences: UserPreferences
+
 let telemetryWindow: BrowserWindow | null
-const windows: BrowserWindow[] = []
+let mainMenuWindow: BrowserWindow | null
+const allWindows: BrowserWindow[] = []
+const overlayWindows: BrowserWindow[] = []
 
 let sdkUtilityProcess: UtilityProcess
 
@@ -98,6 +106,50 @@ function tryUpdateApp(): void {
   })
 }
 
+function getUserPreferences(): void {
+  const userDataPath = app.getPath('userData')
+  const userPreferencesPath = join(userDataPath, 'userPreferences.json')
+  try {
+    const rawData = fs.readFileSync(userPreferencesPath, 'utf8')
+    const preferences: UserPreferences = JSON.parse(rawData)
+    userPreferences = preferences
+  } catch (error) {
+    log.info('No user preferences found. Creating default preferences')
+
+    const defaultPreferences: UserPreferences = new UserPreferences()
+    userPreferences = defaultPreferences
+
+    fs.writeFile(
+      userPreferencesPath,
+      JSON.stringify(defaultPreferences, null, 2),
+      'utf8',
+      (err) => {
+        if (err) {
+          console.error('Error writing preferences file:', err)
+          return
+        }
+        console.log(`Default user preferences saved to ${userPreferencesPath}`)
+      }
+    )
+  }
+}
+getUserPreferences()
+
+function updateUserPreferences(fieldName: string, fieldValue: any): void {
+  const userDataPath = app.getPath('userData')
+  const userPreferencesPath = join(userDataPath, 'userPreferences.json')
+
+  const preferences: UserPreferences = JSON.parse(fs.readFileSync(userPreferencesPath, 'utf8'))
+  preferences[fieldName] = fieldValue
+
+  fs.writeFile(userPreferencesPath, JSON.stringify(preferences, null, 2), 'utf8', (err) => {
+    if (err) {
+      console.error('Error writing preferences file:', err)
+      return
+    }
+  })
+}
+
 console.log('\n')
 
 function setupSdkUtility(): void {
@@ -116,14 +168,14 @@ function setupSdkUtility(): void {
     } else if (data.name === 'is-on-track') {
       if (data.value === true) {
         log.info('is-on-track TRUE open all windows')
-        showAllWindows()
+        showAllOverlays()
       } else if (data.value === false) {
         log.info('is-on-track FALSE close all windows')
-        hideAllWindows()
+        hideAllOverlays()
       }
     } else if (data.name === 'game-closed') {
       log.info('game-closed CLOSE ALL WINDOWS')
-      hideAllWindows()
+      hideAllOverlays()
     } else if (data.name === 'sdk-web-socket-connected') {
       log.info('sdk-web-socket-connected')
     } else if (data.name === 'is') {
@@ -138,13 +190,15 @@ function setupSdkUtility(): void {
 }
 
 function setUpTelemetryWindow() {
+  const windowPosition: number[] = userPreferences.telemetryOverlayPosition
   telemetryWindow = new BrowserWindow({
+    title: 'telemetryOverlay',
     width: 365,
     height: 225,
+    x: windowPosition[0],
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
-    x: 1096,
     // x: is.dev ? 1096 + 2560 : 1096,
-    y: 773,
+    y: windowPosition[1],
     show: false,
     autoHideMenuBar: true,
     frame: false,
@@ -156,12 +210,13 @@ function setUpTelemetryWindow() {
     icon: racingCarIcon,
     ...(process.platform === 'linux' ? { icon: racingCarIcon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/telemetry.js'),
       sandbox: false
     }
   })
-  // telemetryWindow.setIgnoreMouseEvents(true)
-  windows.push(telemetryWindow)
+  telemetryWindow.setIgnoreMouseEvents(true)
+  allWindows.push(telemetryWindow)
+  overlayWindows.push(telemetryWindow)
 
   telemetryWindow.on('ready-to-show', () => {
     telemetryWindow?.setAlwaysOnTop(true, 'screen-saver')
@@ -184,6 +239,47 @@ function setUpTelemetryWindow() {
   }
 }
 
+function setUpMainMenuWindow() {
+  const windowPosition: number[] = userPreferences.mainMenuPosition
+  mainMenuWindow = new BrowserWindow({
+    title: 'mainMenu',
+    width: 1100,
+    height: 800,
+    x: windowPosition[0],
+    y: windowPosition[1],
+    show: false,
+    autoHideMenuBar: true,
+    frame: true,
+    icon: racingCarIcon,
+    ...(process.platform === 'linux' ? { icon: racingCarIcon } : {}),
+    webPreferences: {
+      preload: join(__dirname, '../preload/twoWayIPC.js'),
+      sandbox: false
+    }
+  })
+  allWindows.push(mainMenuWindow)
+
+  mainMenuWindow.on('ready-to-show', () => {
+    // mainMenuWindow?.show()
+  })
+
+  mainMenuWindow.on('close', () => {
+    log.info('main menu closed')
+    mainMenuWindow = null
+  })
+
+  mainMenuWindow.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url)
+    return { action: 'deny' }
+  })
+
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    mainMenuWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/html/mainMenu.html`)
+  } else {
+    mainMenuWindow.loadFile(join(__dirname, '../renderer/html/mainMenu.html'))
+  }
+}
+
 function setUpOverlays(): void {
   setUpTelemetryWindow()
 }
@@ -194,27 +290,49 @@ ipcMain.on('close-program', (_event, _title) => {
 })
 
 function closeAllWindows(): void {
-  windows.forEach((window) => {
+  allWindows.forEach((window) => {
     if (!window.isDestroyed()) {
       window.close()
     }
   })
 }
 
-function hideAllWindows(): void {
-  windows.forEach((window) => {
-    if (!window.isDestroyed()) {
-      window.hide()
+function hideAllOverlays(): void {
+  overlayWindows.forEach((overlayWindow) => {
+    if (!overlayWindow.isDestroyed()) {
+      overlayWindow.hide()
     }
   })
 }
 
-function showAllWindows(): void {
-  windows.forEach((window) => {
-    if (!window.isDestroyed()) {
-      window.show()
+function showAllOverlays(): void {
+  overlayWindows.forEach((overlayWindow) => {
+    if (!overlayWindow.isDestroyed()) {
+      overlayWindow.show()
     }
   })
+}
+
+function handleMessageFromRenderer(_event, message: basicMessage) {
+  if (message.name === 'windows-draggable') {
+    log.info('windows-draggable message received with value: ' + message.value)
+    if (message.value === true) {
+      showAllOverlays()
+      overlayWindows.forEach((window) => {
+        window.setIgnoreMouseEvents(false)
+        window.webContents.send('windows-draggable', true)
+      })
+    } else {
+      overlayWindows.forEach((window) => {
+        window.setIgnoreMouseEvents(true)
+        window.webContents.send('windows-draggable', false)
+        updateUserPreferences(`${window.title}Position`, [
+          window.getPosition()[0],
+          window.getPosition()[1]
+        ])
+      })
+    }
+  }
 }
 
 let tray
@@ -226,18 +344,32 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
+  ipcMain.on('message', handleMessageFromRenderer)
+
   tray = new Tray(helmetIcon)
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show Windows',
+      label: 'Main Menu',
       click: function () {
-        telemetryWindow?.show()
+        if (mainMenuWindow === null) {
+          log.info('if')
+          setUpMainMenuWindow()
+        } else {
+          log.info('else')
+          mainMenuWindow?.show()
+        }
       }
     },
     {
-      label: 'Hide Windows',
+      label: 'Show Overlays',
       click: function () {
-        telemetryWindow?.hide()
+        showAllOverlays()
+      }
+    },
+    {
+      label: 'Hide Overlays',
+      click: function () {
+        hideAllOverlays()
       }
     },
     {
@@ -252,6 +384,7 @@ app.whenReady().then(() => {
 
   setupSdkUtility()
   setUpOverlays()
+  setUpMainMenuWindow()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

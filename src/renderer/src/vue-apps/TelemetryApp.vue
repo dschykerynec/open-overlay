@@ -1,5 +1,5 @@
 <template>
-  <div class="telemetry-overlay">
+  <div :class="{ 'telemetry-overlay': true, draggable: isDraggable }">
     <div class="telemetry-row">
       <div class="input-container input-graph-container">
         <Line id="my-chart-id" class="graph" :options="chartOptions" :data="chartData" />
@@ -76,6 +76,7 @@ const gear = ref('N')
 const speed = ref(0)
 
 const clutchColor = '#145efc'
+const isDraggable = ref(false)
 
 const chartData = computed(() => {
   const last150Inputs = pedalInputs.value.slice(-150)
@@ -177,6 +178,10 @@ onMounted(() => {
     // Convert m/s to mph
     speed.value = Math.floor(telemetry.SpeedValue * 2.23694)
   })
+
+  window.electronAPI.windowsDraggable((value: boolean) => {
+    isDraggable.value = value
+  })
 })
 </script>
 
@@ -186,6 +191,12 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   background-color: black;
+}
+
+.draggable {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
 }
 
 .telemetry-row {
