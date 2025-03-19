@@ -7,7 +7,8 @@ import {
   utilityProcess,
   MessageChannelMain,
   Tray,
-  Menu
+  Menu,
+  globalShortcut
 } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
@@ -33,6 +34,10 @@ let telemetryWindow: BrowserWindow | null
 let mainMenuWindow: BrowserWindow | null
 const allWindows: BrowserWindow[] = []
 const overlayWindows: BrowserWindow[] = []
+
+let tray
+
+let windowsAreDraggable = false
 
 let sdkUtilityProcess: UtilityProcess
 
@@ -319,29 +324,31 @@ function showAllOverlays(): void {
   })
 }
 
-function handleMessageFromRenderer(_event, message: basicMessage) {
-  if (message.name === 'windows-draggable') {
-    log.info('windows-draggable message received with value: ' + message.value)
-    if (message.value === true) {
-      showAllOverlays()
-      overlayWindows.forEach((window) => {
-        window.setIgnoreMouseEvents(false)
-        window.webContents.send('windows-draggable', true)
-      })
-    } else {
-      overlayWindows.forEach((window) => {
-        window.setIgnoreMouseEvents(true)
-        window.webContents.send('windows-draggable', false)
-        updateUserPreferences(`${window.title}Position`, [
-          window.getPosition()[0],
-          window.getPosition()[1]
-        ])
-      })
-    }
+function toggleDraggableWindows(value: boolean): void {
+  if (value === true) {
+    showAllOverlays()
+    overlayWindows.forEach((window) => {
+      window.setIgnoreMouseEvents(false)
+      window.webContents.send('windows-draggable', true)
+    })
+  } else {
+    overlayWindows.forEach((window) => {
+      window.setIgnoreMouseEvents(true)
+      window.webContents.send('windows-draggable', false)
+      updateUserPreferences(`${window.title}Position`, [
+        window.getPosition()[0],
+        window.getPosition()[1]
+      ])
+    })
   }
+  windowsAreDraggable = value
 }
 
-let tray
+function handleMessageFromRenderer(_event, message: basicMessage) {
+  if (message.name === 'windows-draggable') {
+    toggleDraggableWindows(message.value)
+  }
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -353,7 +360,7 @@ app.whenReady().then(() => {
   ipcMain.on('message', handleMessageFromRenderer)
 
   tray = new Tray(helmetIcon)
-  const contextMenu = Menu.buildFromTemplate([
+  const menu = Menu.buildFromTemplate([
     {
       label: 'Main Menu',
       click: function () {
@@ -386,11 +393,16 @@ app.whenReady().then(() => {
     }
   ])
   tray.setToolTip('Open Overlay')
-  tray.setContextMenu(contextMenu)
+  tray.setContextMenu(menu)
 
   setupSdkUtility()
   setUpOverlays()
   setUpMainMenuWindow()
+
+  // let user toggle draggable windows with a keyboard shortcut
+  globalShortcut.register(userPreferences.toggleDraggableWindowsKeybind, () => {
+    toggleDraggableWindows(!windowsAreDraggable)
+  })
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
