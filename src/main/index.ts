@@ -21,6 +21,12 @@ import helmetIcon from '../../resources/helmet_256x256.ico?asset'
 
 import fs from 'fs'
 
+const locked = app.requestSingleInstanceLock()
+if (!locked) {
+  log.info('app already running. quitting')
+  app.quit()
+}
+
 let userPreferences: UserPreferences
 
 let telemetryWindow: BrowserWindow | null
