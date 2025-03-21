@@ -185,7 +185,6 @@ const p2pClass = computed(() => {
 
 const maskStyle = computed(() => {
   // Calculate percentage of cooldown remaining
-  console.log('P2PCooldown:', P2PCooldown.value)
   const percentage = P2PCooldown.value / P2PMaxCooldown
   // Convert to degrees (0-360)
   const degrees = 360 * percentage
@@ -199,7 +198,6 @@ const maskStyle = computed(() => {
 
 const carHasP2P = computed(() => {
   if (driverCarName.value === '') {
-    console.log('Driver car name is empty')
     return false
   }
   const carsWithP2P = ['Super Formula SF23 - Honda', 'Super Formula SF23 - Toyota']
@@ -256,10 +254,8 @@ onMounted(() => {
   })
 
   window.electronAPI.sessionInfoUpdate((sessionInfo: SessionInfo) => {
-    console.log('Event type changed to:', sessionInfo.sessionType)
     sessionType.value = sessionInfo.sessionType
 
-    console.log('Driver car name:', sessionInfo.driverCarName)
     driverCarName.value = sessionInfo.driverCarName
   })
 
