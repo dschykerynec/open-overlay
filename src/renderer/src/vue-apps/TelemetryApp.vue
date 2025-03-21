@@ -1,4 +1,20 @@
 <template>
+  <div v-if="carHasP2P" :class="p2pClass">
+    <div class="p2p-col" style="justify-content: start">
+      <div>OTS: {{ P2PStatus ? 'ENABLED' : 'DISABLED' }}</div>
+    </div>
+    <div class="p2p-col" style="justify-content: center">
+      <div>{{ P2PCount }}s</div>
+    </div>
+    <div class="p2p-col" style="justify-content: end">
+      <div class="cooldown-container" v-if="sessionTypeIsRace">
+        <div class="cooldown-circle">
+          <div class="cooldown-mask" :style="maskStyle"></div>
+          <!-- <div class="cooldown-counter">{{ Math.ceil(P2PCooldown) }}</div> -->
+        </div>
+      </div>
+    </div>
+  </div>
   <div :class="{ 'telemetry-overlay': true, draggable: isDraggable }">
     <div class="telemetry-row">
       <div class="input-container input-graph-container">
@@ -66,17 +82,13 @@ import {
 } from 'chart.js'
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale)
 
-import { Telemetry } from '@customTypes/types'
-
 const pedalInputs = ref<
   Array<{ brakeInputValue: number; throttleInputValue: number; clutchInputValue: number }>
 >(Array(200).fill({ brake: 0.0, throttle: 0.0 }))
 const steeringAngle = ref('0rad')
 const gear = ref('N')
 const speed = ref(0)
-
 const clutchColor = '#145efc'
-const isDraggable = ref(false)
 
 const chartData = computed(() => {
   const last150Inputs = pedalInputs.value.slice(-150)
@@ -152,7 +164,53 @@ const chartOptions: any = {
   }
 }
 
+const P2PStatus = ref(false)
+const P2PCount = ref(0)
+const P2PMaxCooldown = 100
+const P2PCooldown = ref(0)
+
+const driverCarName = ref('')
+
+const isDraggable = ref(false)
+
+const p2pClass = computed(() => {
+  return {
+    'p2p-row': true,
+    'p2p-enabled': P2PStatus.value,
+    'p2p-enabled-low-charge': P2PStatus.value && P2PCount.value < 20,
+    'p2p-cooling-down': !P2PStatus.value && P2PCooldown.value > 0,
+    'p2p-available': !P2PStatus.value && P2PCooldown.value === 0
+  }
+})
+
+const maskStyle = computed(() => {
+  // Calculate percentage of cooldown remaining
+  console.log('P2PCooldown:', P2PCooldown.value)
+  const percentage = P2PCooldown.value / P2PMaxCooldown
+  // Convert to degrees (0-360)
+  const degrees = 360 * percentage
+
+  return {
+    background: `conic-gradient(white ${degrees}deg, transparent ${degrees}deg)`,
+    width: `20px`,
+    height: `20px`
+  }
+})
+
+const carHasP2P = computed(() => {
+  if (driverCarName.value === '') {
+    console.log('Driver car name is empty')
+    return false
+  }
+  const carsWithP2P = ['Super Formula SF23 - Honda', 'Super Formula SF23 - Toyota']
+  return carsWithP2P.includes(driverCarName.value)
+})
+
+const sessionType = ref('')
+const sessionTypeIsRace = computed(() => sessionType.value.toLowerCase() === 'race')
+
 onMounted(() => {
+  let intervalId: number
   // process the incoming telemetry data being sent from the main process
   window.electronAPI.onSdkTelemetryUpdate((telemetry: Telemetry) => {
     // add the new telemetry data to the pedalInputs array, and remove the oldest data
@@ -177,6 +235,32 @@ onMounted(() => {
 
     // Convert m/s to mph
     speed.value = Math.floor(telemetry.SpeedValue * 2.23694)
+
+    // if the P2P was just turned on, start the 100s cooldown timer
+    if (
+      // sessionType.value.toLowerCase() === 'race' &&
+      telemetry.P2PStatus === false &&
+      P2PStatus.value === true
+    ) {
+      window.clearInterval(intervalId)
+      P2PCooldown.value = P2PMaxCooldown
+      intervalId = window.setInterval(() => {
+        P2PCooldown.value--
+        if (P2PCooldown.value <= 0) {
+          clearInterval(intervalId)
+        }
+      }, 1000)
+    }
+    P2PStatus.value = telemetry.P2PStatus
+    P2PCount.value = telemetry.P2PCount
+  })
+
+  window.electronAPI.sessionInfoUpdate((sessionInfo: SessionInfo) => {
+    console.log('Event type changed to:', sessionInfo.sessionType)
+    sessionType.value = sessionInfo.sessionType
+
+    console.log('Driver car name:', sessionInfo.driverCarName)
+    driverCarName.value = sessionInfo.driverCarName
   })
 
   window.electronAPI.windowsDraggable((value: boolean) => {
@@ -245,5 +329,75 @@ onMounted(() => {
 
 .brake {
   background-color: red;
+}
+
+.p2p-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 8px;
+  padding-bottom: 6px;
+
+  color: white;
+  font-size: 0.8rem;
+}
+
+.p2p-col {
+  width: 33.33%;
+
+  display: flex;
+  justify-content: center;
+}
+
+.p2p-enabled {
+  background-color: rgb(4, 90, 4);
+}
+
+.p2p-enabled-low-charge {
+  background-color: red;
+}
+
+.p2p-cooling-down {
+  background-color: purple;
+}
+
+.p2p-available {
+  background-color: rgb(32, 110, 255);
+}
+
+.cooldown-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cooldown-circle {
+  border-radius: 50%;
+  // background-color: #ffffff;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cooldown-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+}
+
+.cooldown-counter {
+  position: relative;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  z-index: 2;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 </style>

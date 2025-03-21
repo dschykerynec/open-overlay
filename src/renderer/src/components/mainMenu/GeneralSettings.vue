@@ -12,13 +12,10 @@ const isDraggable = ref<boolean>(false)
 
 function toggleDraggable() {
   isDraggable.value = !isDraggable.value
-  console.log('sending message to turn off draggable')
   window.electronAPI.sendMessage({ name: 'windows-draggable', value: isDraggable.value })
 }
 
-onMounted(() => {
-  console.log('General Settings mounted')
-})
+onMounted(() => {})
 </script>
 
 <style lang="scss" scoped></style>

@@ -19,6 +19,9 @@ if (process.contextIsolated) {
       onSdkTelemetryUpdate: (callback) => {
         ipcRenderer.on('sdk-telemetry-update', (_event, value) => callback(value))
       },
+      sessionInfoUpdate: (callback) => {
+        ipcRenderer.on('session-info-update', (_event, value) => callback(value))
+      },
       closeProgram: () => ipcRenderer.send('close-program'),
       windowsDraggable: (callback) => {
         ipcRenderer.on('windows-draggable', (_event, value) => callback(value))

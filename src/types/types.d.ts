@@ -1,7 +1,8 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 export type ExtendedElectronAPI = ElectronAPI & {
-  onSdkTelemetryUpdate: (callback: (lapTime: telemetryValue) => void) => void
+  onSdkTelemetryUpdate: (callback: (lapTime: Telemetry) => void) => void
+  sessionInfoUpdate: (callback: (sessionInfo: SessionInfo) => void) => void
   closeProgram: () => void
   sendMessage: (msg: basicMessage) => void
   windowsDraggable: (callback: (value: boolean) => void) => void
@@ -13,29 +14,26 @@ declare global {
     api: unknown
   }
 
-  interface TelemetryValue {
-    name: string
-    value: unknown
+  interface Telemetry {
+    ThrottleInputValue: number
+    BrakeInputValue: number
+    ClutchInputValue: number
+    SteeringInputValue: number
+    SteeringInputUnit: string
+    SpeedValue: number
+    SpeedUnit: string
+    GearValue: number
+    P2PStatus: boolean
+    P2PCount: number
   }
-}
 
-export interface TelemetryValue {
-  name: string
-  value: unknown
-}
+  interface BasicMessage {
+    name: string
+    value: any
+  }
 
-export interface Telemetry {
-  ThrottleInputValue: number
-  BrakeInputValue: number
-  ClutchInputValue: number
-  SteeringInputValue: number
-  SteeringInputUnit: string
-  SpeedValue: number
-  SpeedUnit: string
-  GearValue: number
-}
-
-export interface basicMessage {
-  name: string
-  value: any
+  interface SessionInfo {
+    sessionType: string
+    driverCarName: string
+  }
 }

@@ -12,7 +12,6 @@ import {
 } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import log from 'electron-log'
-import { basicMessage } from '../types/types'
 import { UserPreferences } from '../types/userPreferences'
 
 import { resolve, join } from 'path'
@@ -139,7 +138,7 @@ function getUserPreferences(): void {
           console.error('Error writing preferences file:', err)
           return
         }
-        console.log(`Default user preferences saved to ${userPreferencesPath}`)
+        log.info(`Default user preferences saved to ${userPreferencesPath}`)
       }
     )
   }
@@ -161,7 +160,7 @@ function updateUserPreferences(fieldName: string, fieldValue: any): void {
   })
 }
 
-console.log('\n')
+log.info('\n')
 
 function setupSdkUtility(): void {
   const { port1, port2 } = new MessageChannelMain()
@@ -173,7 +172,7 @@ function setupSdkUtility(): void {
   })
 
   port2.on('message', function (message) {
-    const data = message.data as TelemetryValue
+    const data = message.data as BasicMessage
     if (data.name === 'TelemetryDictionary') {
       telemetryWindow?.webContents?.send('sdk-telemetry-update', data.value)
     } else if (data.name === 'is-on-track') {
@@ -183,6 +182,11 @@ function setupSdkUtility(): void {
       } else if (data.value === false) {
         log.info('is-on-track FALSE close all windows')
         hideAllOverlays()
+      }
+    } else if (data.name === 'session-info-update') {
+      // If telemetryWindow exists, send directly
+      if (telemetryWindow && !telemetryWindow.isDestroyed()) {
+        telemetryWindow.webContents.send('session-info-update', data.value)
       }
     } else if (data.name === 'game-closed') {
       log.info('game-closed CLOSE ALL WINDOWS')
@@ -205,7 +209,7 @@ function setUpTelemetryWindow() {
   telemetryWindow = new BrowserWindow({
     title: 'telemetryOverlay',
     width: 365,
-    height: 225,
+    height: 250,
     x: windowPosition[0],
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
     // x: is.dev ? 1096 + 2560 : 1096,
@@ -344,7 +348,7 @@ function toggleDraggableWindows(value: boolean): void {
   windowsAreDraggable = value
 }
 
-function handleMessageFromRenderer(_event, message: basicMessage) {
+function handleMessageFromRenderer(_event, message: BasicMessage) {
   if (message.name === 'windows-draggable') {
     toggleDraggableWindows(message.value)
   }
@@ -395,9 +399,12 @@ app.whenReady().then(() => {
   tray.setToolTip('Open Overlay')
   tray.setContextMenu(menu)
 
-  setupSdkUtility()
   setUpOverlays()
   setUpMainMenuWindow()
+
+  setTimeout(() => {
+    setupSdkUtility()
+  }, 5000)
 
   // let user toggle draggable windows with a keyboard shortcut
   globalShortcut.register(userPreferences.toggleDraggableWindowsKeybind, () => {
