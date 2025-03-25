@@ -1,13 +1,13 @@
 <template>
   <div v-if="carHasP2P" :class="p2pClass">
     <div class="p2p-col" style="justify-content: start">
-      <div>OTS: {{ P2PStatus ? 'ENABLED' : 'DISABLED' }}</div>
+      <div>OTS: {{ P2PStatusText }}</div>
     </div>
     <div class="p2p-col" style="justify-content: center">
       <div>{{ P2PCount }}s</div>
     </div>
     <div class="p2p-col" style="justify-content: end">
-      <div class="cooldown-container" v-if="sessionTypeIsRace">
+      <div class="cooldown-container" v-if="showCooldownTimer">
         <div class="cooldown-circle">
           <div class="cooldown-mask" :style="maskStyle"></div>
           <!-- <div class="cooldown-counter">{{ Math.ceil(P2PCooldown) }}</div> -->
@@ -178,9 +178,24 @@ const p2pClass = computed(() => {
     'p2p-row': true,
     'p2p-enabled': P2PStatus.value,
     'p2p-enabled-low-charge': P2PStatus.value && P2PCount.value < 20,
-    'p2p-cooling-down': !P2PStatus.value && P2PCooldown.value > 0,
-    'p2p-available': !P2PStatus.value && P2PCooldown.value === 0
+    'p2p-disabled-available': !P2PStatus.value && P2PCooldown.value === 0,
+    'p2p-disable-cooling-down': !P2PStatus.value && P2PCooldown.value > 0,
+    'p2p-depleted': P2PCount.value === 0
   }
+})
+
+const P2PStatusText = computed(() => {
+  if (P2PCount.value <= 0) {
+    return 'DEPLETED'
+  } else if (P2PStatus.value) {
+    return 'ENABLED'
+  } else {
+    return 'DISABLED'
+  }
+})
+
+const showCooldownTimer = computed(() => {
+  return sessionTypeIsRace && P2PCount.value > 0
 })
 
 const maskStyle = computed(() => {
@@ -355,12 +370,16 @@ onMounted(() => {
   background-color: red;
 }
 
-.p2p-cooling-down {
+.p2p-disable-cooling-down {
   background-color: purple;
 }
 
-.p2p-available {
+.p2p-disabled-available {
   background-color: rgb(32, 110, 255);
+}
+
+.p2p-depleted {
+  background-color: black;
 }
 
 .cooldown-container {
