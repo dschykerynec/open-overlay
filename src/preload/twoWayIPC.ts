@@ -1,6 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { basicMessage } from '../types/types'
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -9,8 +8,8 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('electronAPI', {
-      sendMessage: (msg: basicMessage) => ipcRenderer.send('message', msg),
-      onMessage: (callback: (msg: basicMessage) => void) =>
+      sendMessage: (msg: BasicMessage) => ipcRenderer.send('message', msg),
+      onMessage: (callback: (msg: BasicMessage) => void) =>
         ipcRenderer.on('message', (event, msg) => callback(msg))
     })
   } catch (error) {
