@@ -251,7 +251,7 @@ onMounted(() => {
 
     // if the P2P was just turned on, start the 100s cooldown timer
     if (
-      // sessionType.value.toLowerCase() === 'race' &&
+      sessionType.value.toLowerCase() === 'race' &&
       telemetry.P2PStatus === false &&
       P2PStatus.value === true
     ) {
