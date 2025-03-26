@@ -10,7 +10,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electronAPI', {
       sendMessage: (msg: BasicMessage) => ipcRenderer.send('message', msg),
       onMessage: (callback: (msg: BasicMessage) => void) =>
-        ipcRenderer.on('message', (event, msg) => callback(msg))
+        ipcRenderer.on('message', (_event, msg) => callback(msg))
     })
   } catch (error) {
     console.error(error)
