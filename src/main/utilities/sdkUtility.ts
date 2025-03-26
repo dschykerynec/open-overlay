@@ -63,18 +63,12 @@ iracing.on('Telemetry', (telemetry) => {
   mainPort.postMessage(telemetryValues)
 })
 
-iracing.once('SessionInfo', function (evt) {
+iracing.on('SessionInfo', function (evt) {
   driverCarIdx = evt.data.DriverInfo.DriverCarIdx
   driverCarName = evt.data.DriverInfo.Drivers[driverCarIdx].CarScreenName
 
   let currentSessionNum = evt.data.SessionInfo.CurrentSessionNum
   let session = evt.data.SessionInfo.Sessions[currentSessionNum]
-
-  // if session type has changed fire update event
-  if (session.SessionType !== currentSessionType) {
-    currentSessionType = session.SessionType
-    mainPort.postMessage({ name: 'session-type-update', value: currentSessionType })
-  }
 
   const sessionInfo: SessionInfo = {
     sessionType: session.SessionType,

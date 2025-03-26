@@ -1,16 +1,22 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
-export type ExtendedElectronAPI = ElectronAPI & {
+export type ElectronAPIIPC = ElectronAPI & {
+  sendMessage: (msg: BasicMessage) => void
+  onMessage: (callback: (msg: BasicMessage) => void) => void
+}
+
+export type ElectronAPITelemetry = ElectronAPI & {
   onSdkTelemetryUpdate: (callback: (lapTime: Telemetry) => void) => void
   sessionInfoUpdate: (callback: (sessionInfo: SessionInfo) => void) => void
   closeProgram: () => void
-  sendMessage: (msg: basicMessage) => void
+  sendMessage: (msg: BasicMessage) => void
   windowsDraggable: (callback: (value: boolean) => void) => void
 }
 
 declare global {
   interface Window {
-    electronAPI: ExtendedElectronAPI
+    electronAPIIPC: ElectronAPIIPC
+    electronAPITelemetry: ElectronAPITelemetry
     api: unknown
   }
 
