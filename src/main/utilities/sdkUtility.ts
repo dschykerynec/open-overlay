@@ -63,7 +63,7 @@ iracing.on('Telemetry', (telemetry) => {
   mainPort.postMessage(telemetryValues)
 })
 
-iracing.once('SessionInfo', function (evt) {
+iracing.on('SessionInfo', function (evt) {
   driverCarIdx = evt.data.DriverInfo.DriverCarIdx
   driverCarName = evt.data.DriverInfo.Drivers[driverCarIdx].CarScreenName
 
