@@ -70,12 +70,6 @@ iracing.on('SessionInfo', function (evt) {
   let currentSessionNum = evt.data.SessionInfo.CurrentSessionNum
   let session = evt.data.SessionInfo.Sessions[currentSessionNum]
 
-  // if session type has changed fire update event
-  if (session.SessionType !== currentSessionType) {
-    currentSessionType = session.SessionType
-    mainPort.postMessage({ name: 'session-type-update', value: currentSessionType })
-  }
-
   const sessionInfo: SessionInfo = {
     sessionType: session.SessionType,
     driverCarName: driverCarName

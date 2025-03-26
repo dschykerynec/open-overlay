@@ -184,7 +184,6 @@ function setupSdkUtility(): void {
         hideAllOverlays()
       }
     } else if (data.name === 'session-info-update') {
-      // If telemetryWindow exists, send directly
       if (telemetryWindow && !telemetryWindow.isDestroyed()) {
         telemetryWindow.webContents.send('session-info-update', data.value)
       }
