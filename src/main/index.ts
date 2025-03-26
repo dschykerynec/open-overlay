@@ -183,7 +183,7 @@ function setupSdkUtility(): void {
   })
   port2.start()
 
-  sdkUtilityProcess.on('exit', function (code) {
+  sdkUtilityProcess.on('exit', function (_code) {
     closeAllWindows()
   })
 }
