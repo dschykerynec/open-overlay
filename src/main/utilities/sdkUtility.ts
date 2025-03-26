@@ -32,6 +32,7 @@ iracing.on('Connected', () => {
 
 iracing.on('Disconnected', () => {
   log.info('Disconnected from iRacing')
+  mainPort.postMessage({ name: 'is-on-track', value: false })
 })
 
 iracing.on('Telemetry', (telemetry) => {

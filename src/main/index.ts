@@ -53,30 +53,23 @@ log.info('app version: ' + app.getVersion())
 log.info('isDev: ' + is.dev)
 
 function handleSquirrelEvents(): boolean {
-  log.info('handleSquirrelEvents')
+  log.info('processing app update events')
 
   let options = process.argv.slice(1)
-  log.info('command line options: ')
-  log.info(options)
 
   if (!(options && options.length >= 1)) {
-    log.info('no options. checking for app update')
     tryUpdateApp()
     return true
   }
 
   let m = options[0].match(/--squirrel-([a-z]+)/)
   if (!(m && m[1])) {
-    log.info('running app normally. will check for app update')
     tryUpdateApp()
     return true
   }
   if (m[1] === 'firstrun') {
-    log.info('running app normally')
     return true
   }
-
-  log.info('squirrelCommand: ' + m[1])
 
   if (m[1] === 'install') {
     log.info('installing app for the first time')
@@ -92,8 +85,6 @@ function handleSquirrelEvents(): boolean {
     return false
   } else if (m[1] === 'uninstall') {
     log.info('uninstalling app.')
-
-    // todo: uninstall stuff
 
     return false
   }
@@ -138,7 +129,6 @@ function getUserPreferences(): void {
           console.error('Error writing preferences file:', err)
           return
         }
-        log.info(`Default user preferences saved to ${userPreferencesPath}`)
       }
     )
   }
@@ -177,10 +167,8 @@ function setupSdkUtility(): void {
       telemetryWindow?.webContents?.send('sdk-telemetry-update', data.value)
     } else if (data.name === 'is-on-track') {
       if (data.value === true) {
-        log.info('is-on-track TRUE open all windows')
         showAllOverlays()
       } else if (data.value === false) {
-        log.info('is-on-track FALSE close all windows')
         hideAllOverlays()
       }
     } else if (data.name === 'session-info-update') {
@@ -188,17 +176,14 @@ function setupSdkUtility(): void {
         telemetryWindow.webContents.send('session-info-update', data.value)
       }
     } else if (data.name === 'game-closed') {
-      log.info('game-closed CLOSE ALL WINDOWS')
       hideAllOverlays()
     } else if (data.name === 'sdk-web-socket-connected') {
-      log.info('sdk-web-socket-connected')
     } else if (data.name === 'is') {
     }
   })
   port2.start()
 
   sdkUtilityProcess.on('exit', function (code) {
-    log.info('sdkUtilityProcesss exited with code ' + code)
     closeAllWindows()
   })
 }
@@ -237,7 +222,6 @@ function setUpTelemetryWindow() {
   })
 
   telemetryWindow.on('close', () => {
-    log.info('telemetry closed')
     telemetryWindow = null
   })
 
@@ -278,7 +262,6 @@ function setUpMainMenuWindow() {
   })
 
   mainMenuWindow.on('close', () => {
-    log.info('main menu closed')
     mainMenuWindow = null
   })
 
@@ -299,7 +282,6 @@ function setUpOverlays(): void {
 }
 
 ipcMain.on('close-program', (_event, _title) => {
-  log.info('CLOSE PROGRAM IPC MAIN EVENT')
   app.quit()
 })
 
@@ -368,10 +350,8 @@ app.whenReady().then(() => {
       label: 'Main Menu',
       click: function () {
         if (mainMenuWindow === null) {
-          log.info('if')
           setUpMainMenuWindow()
         } else {
-          log.info('else')
           mainMenuWindow?.show()
         }
       }
@@ -421,7 +401,6 @@ app.whenReady().then(() => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
-      log.info('nothing to do here since windows only open when connection is established')
     }
   })
 })
@@ -431,21 +410,14 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    log.info('window-all-closed')
   }
 })
 
 app.on('before-quit', () => {
-  log.info('BEGINNING OF BEFORE QUIT')
-
   if (sdkUtilityProcess.pid !== undefined) {
-    log.info('killing sdkUtilityProcess process')
     sdkUtilityProcess.kill()
   } else {
-    log.info('sdkUtilityProcess already exited')
   }
-
-  log.info('END OF BEFORE QUIT')
 })
 
 // In this file you can include the rest of your app"s specific main process
