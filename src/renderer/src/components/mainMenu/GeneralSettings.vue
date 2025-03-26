@@ -12,7 +12,7 @@ const isDraggable = ref<boolean>(false)
 
 function toggleDraggable() {
   isDraggable.value = !isDraggable.value
-  window.electronAPI.sendMessage({ name: 'windows-draggable', value: isDraggable.value })
+  window.electronAPIIPC.sendMessage({ name: 'windows-draggable', value: isDraggable.value })
 }
 
 onMounted(() => {})

@@ -225,7 +225,7 @@ const sessionTypeIsRace = computed(() => sessionType.value.toLowerCase() === 'ra
 onMounted(() => {
   let intervalId: number
   // process the incoming telemetry data being sent from the main process
-  window.electronAPI.onSdkTelemetryUpdate((telemetry: Telemetry) => {
+  window.electronAPITelemetry.onSdkTelemetryUpdate((telemetry: Telemetry) => {
     // add the new telemetry data to the pedalInputs array, and remove the oldest data
     pedalInputs.value.push({
       brakeInputValue: telemetry.BrakeInputValue,
@@ -268,13 +268,13 @@ onMounted(() => {
     P2PCount.value = telemetry.P2PCount
   })
 
-  window.electronAPI.sessionInfoUpdate((sessionInfo: SessionInfo) => {
+  window.electronAPITelemetry.sessionInfoUpdate((sessionInfo: SessionInfo) => {
     sessionType.value = sessionInfo.sessionType
 
     driverCarName.value = sessionInfo.driverCarName
   })
 
-  window.electronAPI.windowsDraggable((value: boolean) => {
+  window.electronAPITelemetry.windowsDraggable((value: boolean) => {
     isDraggable.value = value
   })
 })
