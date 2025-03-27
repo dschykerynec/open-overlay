@@ -27,6 +27,7 @@ if (!locked) {
   app.quit()
 }
 
+const userPreferencesPath = join(app.getPath('userData'), 'userPreferences.json')
 let userPreferences: UserPreferences
 
 let telemetryWindow: BrowserWindow | null
@@ -39,6 +40,8 @@ let tray
 let windowsAreDraggable = false
 
 let sdkUtilityProcess: UtilityProcess
+
+let carScreenName: string = ''
 
 function setupLogging(): void {
   log.initialize()
@@ -108,8 +111,6 @@ function tryUpdateApp(): void {
 }
 
 function getUserPreferences(): void {
-  const userDataPath = app.getPath('userData')
-  const userPreferencesPath = join(userDataPath, 'userPreferences.json')
   try {
     const rawData = fs.readFileSync(userPreferencesPath, 'utf8')
     const preferences: UserPreferences = JSON.parse(rawData)
@@ -135,14 +136,8 @@ function getUserPreferences(): void {
 }
 getUserPreferences()
 
-function updateUserPreferences(fieldName: string, fieldValue: any): void {
-  const userDataPath = app.getPath('userData')
-  const userPreferencesPath = join(userDataPath, 'userPreferences.json')
-
-  const preferences: UserPreferences = JSON.parse(fs.readFileSync(userPreferencesPath, 'utf8'))
-  preferences[fieldName] = fieldValue
-
-  fs.writeFile(userPreferencesPath, JSON.stringify(preferences, null, 2), 'utf8', (err) => {
+function saveUserPreferences(): void {
+  fs.writeFile(userPreferencesPath, JSON.stringify(userPreferences, null, 2), 'utf8', (err) => {
     if (err) {
       console.error('Error writing preferences file:', err)
       return
@@ -174,7 +169,16 @@ function setupSdkUtility(): void {
     } else if (data.name === 'session-info-update') {
       if (telemetryWindow && !telemetryWindow.isDestroyed()) {
         telemetryWindow.webContents.send('session-info-update', data.value)
+        if (data.value.carScreenName !== carScreenName) {
+          console.log('new car detected:')
+          console.log('old name: ' + carScreenName)
+          console.log('new name: ' + data.value.carScreenName)
+          carScreenName = data.value.carScreenName
+          repositionOverlaysNewCar()
+        }
       }
+    } else if (data.name === 'first-session-info') {
+      firstSessionInfoUpdate(message.data.value.data)
     } else if (data.name === 'game-closed') {
       hideAllOverlays()
     } else if (data.name === 'sdk-web-socket-connected') {
@@ -188,8 +192,41 @@ function setupSdkUtility(): void {
   })
 }
 
+// setup various pieces of setup data such as car name to position windows accordingly
+function firstSessionInfoUpdate(data: any): void {
+  console.log('firstSessionInfoUpdate')
+  // console.log(data)
+  let driverCarIdx = data.DriverInfo.DriverCarIdx
+  carScreenName = data.DriverInfo.Drivers[driverCarIdx].CarScreenName
+  console.log('carScreenName: ' + carScreenName)
+
+  setUpOverlays()
+}
+
+function repositionOverlaysNewCar(): void {
+  overlayWindows.forEach((window) => {
+    let windowPosition: [number, number]
+    if (carScreenName in userPreferences.telemetryOverlayPosition) {
+      windowPosition = userPreferences.telemetryOverlayPosition[carScreenName]
+    } else {
+      windowPosition = [0, 0]
+      userPreferences.telemetryOverlayPosition[carScreenName] = windowPosition
+      saveUserPreferences()
+    }
+    window.setPosition(windowPosition[0], windowPosition[1])
+  })
+}
+
 function setUpTelemetryWindow() {
-  const windowPosition: number[] = userPreferences.telemetryOverlayPosition
+  let windowPosition: [number, number]
+  if (carScreenName in userPreferences.telemetryOverlayPosition) {
+    windowPosition = userPreferences.telemetryOverlayPosition[carScreenName]
+  } else {
+    windowPosition = [0, 0]
+    userPreferences.telemetryOverlayPosition[carScreenName] = windowPosition
+    saveUserPreferences()
+  }
+
   telemetryWindow = new BrowserWindow({
     title: 'telemetryOverlay',
     width: 365,
@@ -238,7 +275,7 @@ function setUpTelemetryWindow() {
 }
 
 function setUpMainMenuWindow() {
-  const windowPosition: number[] = userPreferences.mainMenuPosition
+  const windowPosition: [number, number] = userPreferences.mainMenuPosition
   mainMenuWindow = new BrowserWindow({
     title: 'mainMenu',
     width: 1100,
@@ -320,10 +357,11 @@ function toggleDraggableWindows(value: boolean): void {
     overlayWindows.forEach((window) => {
       window.setIgnoreMouseEvents(true)
       window.webContents.send('windows-draggable', false)
-      updateUserPreferences(`${window.title}Position`, [
+      userPreferences[`${window.title}Position`][carScreenName] = [
         window.getPosition()[0],
         window.getPosition()[1]
-      ])
+      ]
+      saveUserPreferences()
     })
   }
   windowsAreDraggable = value
@@ -378,15 +416,12 @@ app.whenReady().then(() => {
   tray.setToolTip('Open Overlay')
   tray.setContextMenu(menu)
 
-  setUpOverlays()
   setUpMainMenuWindow()
-
-  setTimeout(() => {
-    setupSdkUtility()
-  }, 5000)
+  setupSdkUtility()
 
   // let user toggle draggable windows with a keyboard shortcut
   globalShortcut.register(userPreferences.toggleDraggableWindowsKeybind, () => {
+    console.log('toggleDraggableWindows')
     toggleDraggableWindows(!windowsAreDraggable)
   })
 

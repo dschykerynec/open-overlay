@@ -7,7 +7,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('electronAPI', {
+    contextBridge.exposeInMainWorld('electronAPIIPC', {
       sendMessage: (msg: BasicMessage) => ipcRenderer.send('message', msg),
       onMessage: (callback: (msg: BasicMessage) => void) =>
         ipcRenderer.on('message', (_event, msg) => callback(msg))

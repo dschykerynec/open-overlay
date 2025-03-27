@@ -5,8 +5,8 @@ import log from 'electron-log'
 let mainPort: MessagePortMain
 let isOnTrack: Boolean = false
 let driverCarIdx: number = -1
-let driverCarName: string = ''
-let currentSessionType: string = ''
+let carScreenName: string = ''
+let isFirstSessionInfo: Boolean = true
 
 process.parentPort.once('message', (e) => {
   mainPort = e.ports[0]
@@ -66,14 +66,19 @@ iracing.on('Telemetry', (telemetry) => {
 
 iracing.on('SessionInfo', function (evt) {
   driverCarIdx = evt.data.DriverInfo.DriverCarIdx
-  driverCarName = evt.data.DriverInfo.Drivers[driverCarIdx].CarScreenName
+  carScreenName = evt.data.DriverInfo.Drivers[driverCarIdx].CarScreenName
 
   let currentSessionNum = evt.data.SessionInfo.CurrentSessionNum
   let session = evt.data.SessionInfo.Sessions[currentSessionNum]
 
   const sessionInfo: SessionInfo = {
     sessionType: session.SessionType,
-    driverCarName: driverCarName
+    carScreenName: carScreenName
   }
   mainPort.postMessage({ name: 'session-info-update', value: sessionInfo })
+
+  if (isFirstSessionInfo) {
+    isFirstSessionInfo = false
+    mainPort.postMessage({ name: 'first-session-info', value: evt })
+  }
 })

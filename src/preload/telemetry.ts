@@ -15,9 +15,12 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
-    contextBridge.exposeInMainWorld('electronAPI', {
+    contextBridge.exposeInMainWorld('electronAPITelemetry', {
       onSdkTelemetryUpdate: (callback) => {
         ipcRenderer.on('sdk-telemetry-update', (_event, value) => callback(value))
+      },
+      firstSessionInfo: (callback) => {
+        ipcRenderer.on('first-session-info', (_event, value) => callback(value))
       },
       sessionInfoUpdate: (callback) => {
         ipcRenderer.on('session-info-update', (_event, value) => callback(value))

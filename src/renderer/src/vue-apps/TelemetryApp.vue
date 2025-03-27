@@ -169,7 +169,7 @@ const P2PCount = ref(0)
 const P2PMaxCooldown = 100
 const P2PCooldown = ref(0)
 
-const driverCarName = ref('')
+const carScreenName = ref('')
 
 const isDraggable = ref(false)
 
@@ -212,11 +212,11 @@ const maskStyle = computed(() => {
 })
 
 const carHasP2P = computed(() => {
-  if (driverCarName.value === '') {
+  if (carScreenName.value === '') {
     return false
   }
   const carsWithP2P = ['Super Formula SF23 - Honda', 'Super Formula SF23 - Toyota']
-  return carsWithP2P.includes(driverCarName.value)
+  return carsWithP2P.includes(carScreenName.value)
 })
 
 const sessionType = ref('')
@@ -224,6 +224,7 @@ const sessionTypeIsRace = computed(() => sessionType.value.toLowerCase() === 'ra
 
 onMounted(() => {
   let intervalId: number
+  console.log(window)
   // process the incoming telemetry data being sent from the main process
   window.electronAPITelemetry.onSdkTelemetryUpdate((telemetry: Telemetry) => {
     // add the new telemetry data to the pedalInputs array, and remove the oldest data
@@ -268,10 +269,13 @@ onMounted(() => {
     P2PCount.value = telemetry.P2PCount
   })
 
+  window.electronAPITelemetry.firstSessionInfo((sessionInfo: any) => {
+    carScreenName.value = sessionInfo.driverCarName
+  })
+
   window.electronAPITelemetry.sessionInfoUpdate((sessionInfo: SessionInfo) => {
     sessionType.value = sessionInfo.sessionType
-
-    driverCarName.value = sessionInfo.driverCarName
+    carScreenName.value = sessionInfo.carScreenName
   })
 
   window.electronAPITelemetry.windowsDraggable((value: boolean) => {

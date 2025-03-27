@@ -7,6 +7,7 @@ export type ElectronAPIIPC = ElectronAPI & {
 
 export type ElectronAPITelemetry = ElectronAPI & {
   onSdkTelemetryUpdate: (callback: (lapTime: Telemetry) => void) => void
+  firstSessionInfo: (callback: (sessionInfo: any) => void) => void
   sessionInfoUpdate: (callback: (sessionInfo: SessionInfo) => void) => void
   closeProgram: () => void
   sendMessage: (msg: BasicMessage) => void
@@ -40,6 +41,6 @@ declare global {
 
   interface SessionInfo {
     sessionType: string
-    driverCarName: string
+    carScreenName: string
   }
 }
