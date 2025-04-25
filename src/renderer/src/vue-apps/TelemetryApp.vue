@@ -38,8 +38,19 @@
           }"
         ></div>
       </div>
-      <div class="input-container misc-container">
-        <div class="misc-item steering-telemetry">
+      <div class="input-container speed-container">
+        <div class="speed-item" style="margin-top: -3px; margin-bottom: -3px">
+          <div style="font-weight: 600; font-size: 3.5em">{{ gear }}</div>
+        </div>
+        <div class="speed-item" style="margin-bottom: -8px">
+          <div style="font-size: 1.6em">{{ speed }}</div>
+        </div>
+        <div class="speed-item" style="margin-bottom: -2px">
+          <div style="font-size: 1em">mph</div>
+        </div>
+      </div>
+      <div class="input-container steering-container">
+        <div class="speed-item steering-telemetry">
           <img
             :src="steeringWheelImage"
             alt="steering-wheel"
@@ -49,15 +60,6 @@
               transform: `rotate(${steeringAngle})`
             }"
           />
-        </div>
-        <div class="misc-item" style="margin-bottom: -3px">
-          <div style="font-weight: bold; font-size: 2em">{{ gear }}</div>
-        </div>
-        <div class="misc-item" style="margin-bottom: -2px">
-          <div style="font-size: 0.8em">mph</div>
-        </div>
-        <div class="misc-item" style="margin-bottom: -1px">
-          <div style="font-size: 1.2em">{{ speed }}</div>
         </div>
       </div>
     </div>
@@ -84,7 +86,7 @@ ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale,
 
 const pedalInputs = ref<
   Array<{ brakeInputValue: number; throttleInputValue: number; clutchInputValue: number }>
->(Array(200).fill({ brake: 0.0, throttle: 0.0 }))
+>(Array(150).fill({ brake: 0.0, throttle: 0.0 }))
 const steeringAngle = ref('0rad')
 const gear = ref('N')
 const speed = ref(0)
@@ -224,7 +226,6 @@ const sessionTypeIsRace = computed(() => sessionType.value.toLowerCase() === 'ra
 
 onMounted(() => {
   let intervalId: number
-  console.log(window)
   // process the incoming telemetry data being sent from the main process
   window.electronAPITelemetry.onSdkTelemetryUpdate((telemetry: Telemetry) => {
     // add the new telemetry data to the pedalInputs array, and remove the oldest data
@@ -290,6 +291,10 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   background-color: black;
+
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .draggable {
@@ -306,7 +311,7 @@ onMounted(() => {
 }
 
 .input-graph-container {
-  width: 210px;
+  width: 300px;
   background-color: #404040;
 }
 
@@ -318,7 +323,7 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.misc-container {
+.speed-container {
   width: 80px;
   display: flex;
   flex-direction: column;
@@ -328,9 +333,20 @@ onMounted(() => {
   background-color: #404040;
 }
 
-.misc-item {
+.speed-item {
   display: flex;
   justify-content: center;
+}
+
+.steering-container {
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0px;
+  color: white;
+  background-color: #404040;
 }
 
 .input-bar {
