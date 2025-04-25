@@ -229,7 +229,7 @@ function setUpTelemetryWindow() {
 
   telemetryWindow = new BrowserWindow({
     title: 'telemetryOverlay',
-    width: 365,
+    width: 545,
     height: 250,
     x: windowPosition[0],
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
