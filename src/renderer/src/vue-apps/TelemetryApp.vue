@@ -20,23 +20,31 @@
       <div class="input-container input-graph-container">
         <Line id="my-chart-id" class="graph" :options="chartOptions" :data="chartData" />
       </div>
-      <div class="input-container input-bar-container">
-        <div
-          class="input-bar brake"
-          :style="{
-            height: pedalInputs[pedalInputs.length - 1].brakeInputValue * 100 + '%',
-            width: '100%'
-          }"
-        ></div>
+      <div class="input-container pedal-input">
+        <div class="input-bar-label">{{ currentPedalInputs.brake }}</div>
+        <div class="input-bar-container">
+          <div
+            class="input-bar brake"
+            :style="{
+              height: currentPedalInputs.brake + '%',
+              width: '100%'
+            }"
+          ></div>
+        </div>
       </div>
-      <div class="input-container input-bar-container">
-        <div
-          class="input-bar throttle"
-          :style="{
-            height: pedalInputs[pedalInputs.length - 1].throttleInputValue * 100 + '%',
-            width: '100%'
-          }"
-        ></div>
+      <div class="input-container pedal-input">
+        <div class="input-bar-label">
+          {{ currentPedalInputs.throttle }}
+        </div>
+        <div class="input-bar-container">
+          <div
+            class="input-bar throttle"
+            :style="{
+              height: currentPedalInputs.throttle + '%',
+              width: '100%'
+            }"
+          ></div>
+        </div>
       </div>
       <div class="input-container speed-container">
         <div class="speed-item" style="margin-top: -3px; margin-bottom: -3px">
@@ -87,6 +95,16 @@ ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale,
 const pedalInputs = ref<
   Array<{ brakeInputValue: number; throttleInputValue: number; clutchInputValue: number }>
 >(Array(150).fill({ brake: 0.0, throttle: 0.0 }))
+
+const currentPedalInputs = computed(() => {
+  const lastInput = pedalInputs.value[pedalInputs.value.length - 1]
+  return {
+    brake: Math.round(lastInput?.brakeInputValue * 100) || 0,
+    throttle: Math.round(lastInput?.throttleInputValue * 100) || 0,
+    clutch: Math.round(lastInput?.clutchInputValue * 100) || 0
+  }
+})
+
 const steeringAngle = ref('0rad')
 const gear = ref('N')
 const speed = ref(0)
@@ -317,8 +335,28 @@ onMounted(() => {
   background-color: #404040;
 }
 
+.pedal-input {
+  width: 22px;
+
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  row-gap: 5px;
+}
+
+.input-bar-label {
+  height: 10%;
+  // background-color: #404040;
+  font-size: 0.8em;
+  color: white;
+  text-align: center;
+}
+
 .input-bar-container {
-  width: 18px;
+  flex-grow: 1;
   background-color: #404040;
 
   position: relative;

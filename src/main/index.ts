@@ -229,7 +229,7 @@ function setUpTelemetryWindow() {
 
   telemetryWindow = new BrowserWindow({
     title: 'telemetryOverlay',
-    width: 585,
+    width: 593,
     height: 250,
     x: windowPosition[0],
     // I test dev on my secondary 1440p monitor so this ensures the window is on the correct monitor
@@ -418,6 +418,8 @@ app.whenReady().then(() => {
 
   setUpMainMenuWindow()
   setupSdkUtility()
+  // setUpTelemetryWindow()
+  // telemetryWindow?.show()
 
   // let user toggle draggable windows with a keyboard shortcut
   globalShortcut.register(userPreferences.toggleDraggableWindowsKeybind, () => {
