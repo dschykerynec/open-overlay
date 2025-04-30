@@ -54,8 +54,8 @@
           <img
             :src="steeringWheelImage"
             alt="steering-wheel"
-            width="52"
-            height="52"
+            width="78"
+            height="78"
             :style="{
               transform: `rotate(${steeringAngle})`
             }"
@@ -291,6 +291,8 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   background-color: black;
+  border-top-right-radius: 67px;
+  border-bottom-right-radius: 67px;
 
   font-family: 'Open Sans', sans-serif;
   font-weight: 400;
@@ -339,7 +341,7 @@ onMounted(() => {
 }
 
 .steering-container {
-  width: 80px;
+  width: 120px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -347,6 +349,8 @@ onMounted(() => {
   padding: 5px 0px;
   color: white;
   background-color: #404040;
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
 }
 
 .input-bar {
