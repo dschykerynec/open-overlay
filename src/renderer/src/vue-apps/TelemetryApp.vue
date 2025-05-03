@@ -1,73 +1,78 @@
 <template>
-  <div v-if="carHasP2P" :class="p2pClass">
-    <div class="p2p-col" style="justify-content: start">
-      <div>OTS: {{ P2PStatusText }}</div>
-    </div>
-    <div class="p2p-col" style="justify-content: center">
-      <div>{{ P2PCount }}s</div>
-    </div>
-    <div class="p2p-col" style="justify-content: end">
-      <div class="cooldown-container" v-if="showCooldownTimer">
-        <div class="cooldown-circle">
-          <div class="cooldown-mask" :style="maskStyle"></div>
-          <!-- <div class="cooldown-counter">{{ Math.ceil(P2PCooldown) }}</div> -->
+  <div class="overlay-wrapper">
+    <div class="p2p-wrapper" v-if="carHasP2P">
+      <div :class="p2pClass"></div>
+      <div class="p2p-row">
+        <div class="p2p-col" style="justify-content: start">
+          <div>OTS: {{ P2PStatusText }}</div>
+        </div>
+        <div class="p2p-col" style="justify-content: center">
+          <div>{{ P2PCount }}s</div>
+        </div>
+        <div class="p2p-col" style="justify-content: end; margin-right: 20px">
+          <div class="cooldown-container" v-if="showCooldownTimer || true">
+            <div class="cooldown-circle">
+              <div class="cooldown-mask" :style="maskStyle"></div>
+              <!-- <div class="cooldown-counter">{{ Math.ceil(P2PCooldown) }}</div> -->
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div :class="{ 'telemetry-overlay': true, draggable: isDraggable }">
-    <div class="telemetry-row">
-      <div class="input-container input-graph-container">
-        <Line id="my-chart-id" class="graph" :options="chartOptions" :data="chartData" />
-      </div>
-      <div class="input-container pedal-input">
-        <div class="input-bar-label">{{ currentPedalInputs.brake }}</div>
-        <div class="input-bar-container">
-          <div
-            class="input-bar brake"
-            :style="{
-              height: currentPedalInputs.brake + '%',
-              width: '100%'
-            }"
-          ></div>
+    <div :class="{ 'telemetry-overlay': true, draggable: isDraggable }">
+      <div class="telemetry-row">
+        <div class="input-container input-graph-container">
+          <Line id="my-chart-id" class="graph" :options="chartOptions" :data="chartData" />
         </div>
-      </div>
-      <div class="input-container pedal-input">
-        <div class="input-bar-label">
-          {{ currentPedalInputs.throttle }}
+        <div class="input-container pedal-input">
+          <div class="input-bar-label">{{ currentPedalInputs.brake }}</div>
+          <div class="input-bar-container">
+            <div
+              class="input-bar brake"
+              :style="{
+                height: currentPedalInputs.brake + '%',
+                width: '100%'
+              }"
+            ></div>
+          </div>
         </div>
-        <div class="input-bar-container">
-          <div
-            class="input-bar throttle"
-            :style="{
-              height: currentPedalInputs.throttle + '%',
-              width: '100%'
-            }"
-          ></div>
+        <div class="input-container pedal-input">
+          <div class="input-bar-label">
+            {{ currentPedalInputs.throttle }}
+          </div>
+          <div class="input-bar-container">
+            <div
+              class="input-bar throttle"
+              :style="{
+                height: currentPedalInputs.throttle + '%',
+                width: '100%'
+              }"
+            ></div>
+          </div>
         </div>
-      </div>
-      <div class="input-container speed-container">
-        <div class="speed-item" style="margin-top: -3px; margin-bottom: -3px">
-          <div style="font-weight: 600; font-size: 3.5em">{{ gear }}</div>
+        <div class="input-container speed-container">
+          <div class="speed-item" style="margin-top: -3px; margin-bottom: -3px">
+            <div style="font-weight: 600; font-size: 3.5em">{{ gear }}</div>
+          </div>
+          <div class="speed-item" style="margin-bottom: -8px">
+            <div style="font-size: 1.6em">{{ speed }}</div>
+          </div>
+          <div class="speed-item" style="margin-bottom: -2px">
+            <div style="font-size: 1em">mph</div>
+          </div>
         </div>
-        <div class="speed-item" style="margin-bottom: -8px">
-          <div style="font-size: 1.6em">{{ speed }}</div>
-        </div>
-        <div class="speed-item" style="margin-bottom: -2px">
-          <div style="font-size: 1em">mph</div>
-        </div>
-      </div>
-      <div class="input-container steering-container">
-        <div class="speed-item steering-telemetry">
-          <img
-            :src="steeringWheelImage"
-            alt="steering-wheel"
-            width="78"
-            height="78"
-            :style="{
-              transform: `rotate(${steeringAngle})`
-            }"
-          />
+        <div class="input-container steering-container">
+          <div class="speed-item steering-telemetry">
+            <img
+              :src="steeringWheelImage"
+              alt="steering-wheel"
+              width="78"
+              height="78"
+              :style="{
+                transform: `rotate(${steeringAngle})`
+              }"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -195,7 +200,7 @@ const isDraggable = ref(false)
 
 const p2pClass = computed(() => {
   return {
-    'p2p-row': true,
+    'p2p-background-wrapper': true,
     'p2p-enabled': P2PStatus.value,
     'p2p-enabled-low-charge': P2PStatus.value && P2PCount.value < 20,
     'p2p-disabled-available': !P2PStatus.value && P2PCooldown.value === 0,
@@ -304,6 +309,14 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+$overlay-height: 169px;
+
+.overlay-wrapper {
+  height: $overlay-height;
+  display: flex;
+  flex-direction: column;
+}
+
 .telemetry-overlay {
   display: flex;
   flex-direction: column;
@@ -404,10 +417,22 @@ onMounted(() => {
   background-color: red;
 }
 
+.p2p-background-wrapper {
+  height: 99px;
+  width: calc(100% - 16px);
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+  border-top-right-radius: 50px;
+  // border-bottom-right-radius: 67px;
+}
+
 .p2p-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  box-sizing: border-box;
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 8px;
