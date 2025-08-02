@@ -21,7 +21,7 @@ process.parentPort.once('message', (e) => {
 })
 
 const irsdk = require('iracing-sdk-js')
-irsdk.init({ telemetryUpdateInterval: 50 })
+irsdk.init({ telemetryUpdateInterval: 70 })
 const iracing = irsdk.getInstance()
 
 log.info('irsdk initialized')
