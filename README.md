@@ -14,6 +14,7 @@ Built with Electron, Vue 3, and TypeScript.
 - **Car-specific layouts:** detects which car you're driving and remembers your overlay positions for each one, so switching cars doesn't mean rearranging windows
 - **System tray controls:** show or hide overlays, open the main menu (currently a drag-mode toggle, with more settings planned), or quit
 - **Auto-updates:** installed builds update themselves from GitHub Releases
+- **Car-specific preferences:** open-overlay automatically detects what car you are driving and uses the appropriate window positions you set up before. Great for drivers who hop between many cars.
 
 ## Download
 
