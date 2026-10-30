@@ -13,6 +13,7 @@ Built with Electron, Vue 3, and TypeScript.
 - **Repositionable:** press `Ctrl+Alt+Shift+M` to toggle drag mode, move the overlays where you want them, and press it again to lock them. Positions are automatically saved to User Preferences
 - **Main menu and system tray:** configure preferences, which are stored locally in `userPreferences.json`
 - **Auto-updates:** installed builds update themselves from GitHub Releases
+- **Car-specific preferences**: open-overlay automatically detects what car you are driving and saves your overlay positioning accordingly. Great for drivers who hop between multiple cars.
 
 ## Download
 
