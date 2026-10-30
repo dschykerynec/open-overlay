@@ -11,10 +11,9 @@ Built with Electron, Vue 3, and TypeScript.
 - **Telemetry overlay:** live pedal input traces with numeric labels, steering wheel angle, gear, and speed
 - **Click-through windows:** overlays stay on top of the sim without stealing mouse input
 - **Repositionable:** press `Ctrl+Alt+Shift+M` to toggle drag mode, move the overlays where you want them, and press it again to lock them. Positions are saved automatically
-- **Car-specific layouts:** detects which car you're driving and remembers your overlay positions for each one, so switching cars doesn't mean rearranging windows
+- **Car-specific layouts:** detects which car you're driving and remembers your overlay positions for each one. Great for drivers who hop between many cars
 - **System tray controls:** show or hide overlays, open the main menu (currently a drag-mode toggle, with more settings planned), or quit
 - **Auto-updates:** installed builds update themselves from GitHub Releases
-- **Car-specific preferences:** open-overlay automatically detects what car you are driving and uses the appropriate window positions you set up before. Great for drivers who hop between many cars.
 
 ## Download
 
